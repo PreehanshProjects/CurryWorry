@@ -9,9 +9,13 @@ import {
   Mail,
   MapPin,
   Menu,
+  Minus,
   Phone,
+  Plus,
   Quote,
   Share2,
+  ShoppingBag,
+  Trash2,
   X,
 } from 'lucide-react';
 import './styles.css';
@@ -173,6 +177,43 @@ const orderFacts = [
   ['Best for', 'Preorders and family portions'],
 ];
 
+function getOrderCount(orderItems) {
+  return Object.values(orderItems).reduce((total, item) => total + item.quantity, 0);
+}
+
+function getOrderLines(orderItems) {
+  return Object.values(orderItems).filter((item) => item.quantity > 0);
+}
+
+function buildWhatsAppMessage(orderItems, details) {
+  const lines = getOrderLines(orderItems);
+  const itemText = lines.length
+    ? lines.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`).join('\n')
+    : '- I would like to order from the menu';
+
+  const customerName = details.name.trim() || '[Your name]';
+  const orderType = details.orderType === 'delivery' ? 'Delivery' : 'Pickup';
+  const preferredTime = details.time.trim() || '[Preferred time]';
+  const area = details.area.trim() || '[Area / pickup confirmation]';
+  const note = details.note.trim() || 'No special note';
+
+  return [
+    'Hello Curry Worry, I would like to place an order.',
+    '',
+    'Items:',
+    itemText,
+    '',
+    'Order details:',
+    `- Name: ${customerName}`,
+    `- Type: ${orderType}`,
+    `- Preferred time: ${preferredTime}`,
+    `- Area: ${area}`,
+    `- Notes: ${note}`,
+    '',
+    'Please confirm availability and total price. Thank you.',
+  ].join('\n');
+}
+
 function WhatsAppIcon({ size = 18, className = '' }) {
   return (
     <svg
@@ -223,7 +264,7 @@ function useReveal() {
   }, []);
 }
 
-function Navbar() {
+function Navbar({ onOpenOrder }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -249,12 +290,13 @@ function Navbar() {
           ))}
         </div>
 
-        <a
-          href={whatsappHref}
+        <button
+          type="button"
+          onClick={onOpenOrder}
           className="hidden items-center gap-2 rounded-full bg-curry px-5 py-3 text-sm font-black text-brown transition hover:-translate-y-0.5 hover:bg-[#ffc4dc] lg:inline-flex"
         >
           <WhatsAppIcon size={17} /> WhatsApp
-        </a>
+        </button>
 
         <button
           aria-label="Toggle navigation"
@@ -278,15 +320,18 @@ function Navbar() {
                 {label}
               </a>
             ))}
-            <a
-              href={whatsappHref}
-              onClick={() => setOpen(false)}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onOpenOrder();
+              }}
               className="rounded-2xl bg-terracotta px-4 py-3.5 text-center font-black text-ivory"
             >
               <span className="inline-flex items-center justify-center gap-2">
                 <WhatsAppIcon size={18} /> WhatsApp Order
               </span>
-            </a>
+            </button>
           </div>
         </div>
       )}
@@ -308,7 +353,7 @@ function SectionHeader({ eyebrow, title, text, align = 'center', light = false }
   );
 }
 
-function Hero() {
+function Hero({ onOpenOrder }) {
   return (
     <section id="home" className="relative overflow-hidden bg-brown text-ivory sm:min-h-[100svh]">
       <img
@@ -336,10 +381,10 @@ function Hero() {
             batches. Warm, generous, and made to taste like home.
           </p>
           <div className="mt-6 grid gap-2.5 sm:mt-8 sm:flex sm:flex-row sm:gap-3">
-            <a href={whatsappHref} className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-4 py-3 text-sm font-black leading-none text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:min-h-14 sm:w-auto sm:px-7 sm:py-4 sm:text-base">
+            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-4 py-3 text-sm font-black leading-none text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:min-h-14 sm:w-auto sm:px-7 sm:py-4 sm:text-base">
               <WhatsAppIcon size={18} className="shrink-0 transition group-hover:rotate-6" />
               <span>WhatsApp Order</span>
-            </a>
+            </button>
             <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-7 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:inline-flex">
               <Phone size={16} className="shrink-0" />
               <span>Call {phoneDisplay}</span>
@@ -433,7 +478,9 @@ function FeaturedDishes() {
   );
 }
 
-function MenuCategory() {
+function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem, onOpenOrder }) {
+  const orderCount = getOrderCount(orderItems);
+
   return (
     <section id="menu" className="section warm-texture bg-brown text-ivory">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -472,7 +519,38 @@ function MenuCategory() {
                         {guide}
                       </span>
                     </div>
-                    <span className="text-sm leading-5 text-ivory/58">{detail}</span>
+                    <div className="grid gap-3 min-[420px]:flex min-[420px]:items-center min-[420px]:justify-between">
+                      <span className="text-sm leading-5 text-ivory/58">{detail}</span>
+                      {orderItems[item]?.quantity ? (
+                        <div className="flex w-fit items-center rounded-full border border-white/12 bg-white/[0.08] p-1">
+                          <button
+                            type="button"
+                            aria-label={`Remove one ${item}`}
+                            onClick={() => onDecrementItem(item)}
+                            className="grid h-8 w-8 place-items-center rounded-full text-ivory transition hover:bg-white/12"
+                          >
+                            <Minus size={15} />
+                          </button>
+                          <span className="min-w-8 text-center text-sm font-black text-curry">{orderItems[item].quantity}</span>
+                          <button
+                            type="button"
+                            aria-label={`Add one more ${item}`}
+                            onClick={() => onIncrementItem(item)}
+                            className="grid h-8 w-8 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc]"
+                          >
+                            <Plus size={15} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onAddItem({ name: item, price: guide, detail, category: section.title })}
+                          className="inline-flex min-h-10 w-fit items-center justify-center gap-1.5 rounded-full border border-curry/22 bg-curry/12 px-4 py-2 text-xs font-black text-curry transition hover:-translate-y-0.5 hover:bg-curry hover:text-brown"
+                        >
+                          <Plus size={15} /> Add
+                        </button>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -480,10 +558,14 @@ function MenuCategory() {
           ))}
         </div>
         <div data-reveal className="mt-6 flex flex-col items-center justify-between gap-4 rounded-[1.1rem] border border-curry/20 bg-curry/12 p-4 text-sm font-semibold leading-6 text-ivory/78 sm:flex-row sm:p-5">
-          <span>Ready to order? Send dish names, quantities, pickup time, and your delivery area if needed.</span>
-          <a href={whatsappHref} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-5 py-3 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto">
-            <WhatsAppIcon size={18} /> Send Order
-          </a>
+          <span>{orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'} selected. Review your order before sending it on WhatsApp.` : 'Ready to order? Add dishes from the menu, then send a prepared WhatsApp order.'}</span>
+          <button
+            type="button"
+            onClick={onOpenOrder}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-5 py-3 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto"
+          >
+            <ShoppingBag size={18} /> {orderCount ? 'Review Order' : 'Start Order'}
+          </button>
         </div>
       </div>
     </section>
@@ -595,7 +677,7 @@ function StorySection() {
   );
 }
 
-function OrderSteps() {
+function OrderSteps({ onOpenOrder }) {
   return (
     <section id="order" className="section bg-ivory">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -609,9 +691,9 @@ function OrderSteps() {
             <p className="font-display text-3xl font-semibold">Ready to order?</p>
             <p className="mt-3 text-sm leading-7 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability and portions can be confirmed manually.</p>
             <div className="mt-6 grid gap-3">
-              <a href={whatsappHref} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc]">
+              <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc]">
                 <WhatsAppIcon size={18} /> WhatsApp Order
-              </a>
+              </button>
               <a href={phoneHref} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/16 bg-white/10 px-6 py-4 text-center font-bold text-ivory transition hover:-translate-y-1 hover:bg-white/16">
                 <Phone size={17} className="shrink-0" /> Call {phoneDisplay}
               </a>
@@ -667,7 +749,7 @@ function Testimonials() {
   );
 }
 
-function CTASection() {
+function CTASection({ onOpenOrder }) {
   return (
     <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
       <div data-reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.2rem] bg-brown px-5 py-12 text-center text-ivory shadow-[0_30px_100px_rgba(58,58,58,0.2)] sm:rounded-[2.4rem] sm:px-10 sm:py-16 lg:py-24">
@@ -686,9 +768,9 @@ function CTASection() {
             Whether it is farata for lunch, breakfast for the family, or sweets for the weekend, we will prepare it with care.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <a href={whatsappHref} className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto sm:px-7">
+            <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto sm:px-7">
               <WhatsAppIcon size={18} /> Order Now
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -696,7 +778,162 @@ function CTASection() {
   );
 }
 
-function MobileOrderBar() {
+function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementItem, onClearOrder }) {
+  const [details, setDetails] = useState({
+    name: '',
+    orderType: 'pickup',
+    time: '',
+    area: '',
+    note: '',
+  });
+
+  const lines = getOrderLines(orderItems);
+  const orderCount = getOrderCount(orderItems);
+  const whatsappOrderHref = `${whatsappHref}?text=${encodeURIComponent(buildWhatsAppMessage(orderItems, details))}`;
+
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[70] bg-brown/55 px-3 py-4 backdrop-blur-sm sm:px-6" role="dialog" aria-modal="true" aria-label="Review WhatsApp order">
+      <div className="mx-auto flex h-full max-w-2xl items-end sm:items-center">
+        <div className="max-h-[92svh] w-full overflow-y-auto rounded-[1.2rem] bg-ivory p-4 text-brown shadow-2xl sm:rounded-[1.6rem] sm:p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-terracotta">WhatsApp Order</p>
+              <h2 className="mt-1 font-display text-3xl font-semibold leading-tight">Review your order</h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Close order review"
+              onClick={onClose}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="mt-5 rounded-[1rem] border border-cocoa/10 bg-white p-3">
+            {lines.length ? (
+              <div className="grid gap-2">
+                {lines.map((item) => (
+                  <div key={item.name} className="grid gap-3 rounded-xl bg-cream/70 p-3 min-[420px]:grid-cols-[1fr_auto] min-[420px]:items-center">
+                    <div>
+                      <p className="font-bold leading-5">{item.name}</p>
+                      <p className="mt-1 text-xs font-black text-terracotta">{item.price}</p>
+                    </div>
+                    <div className="flex w-fit items-center rounded-full border border-cocoa/10 bg-white p-1">
+                      <button
+                        type="button"
+                        aria-label={`Remove one ${item.name}`}
+                        onClick={() => onDecrementItem(item.name)}
+                        className="grid h-8 w-8 place-items-center rounded-full text-brown transition hover:bg-cream"
+                      >
+                        <Minus size={15} />
+                      </button>
+                      <span className="min-w-8 text-center text-sm font-black">{item.quantity}</span>
+                      <button
+                        type="button"
+                        aria-label={`Add one more ${item.name}`}
+                        onClick={() => onIncrementItem(item.name)}
+                        className="grid h-8 w-8 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc]"
+                      >
+                        <Plus size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl bg-cream/80 p-4 text-sm leading-6 text-cocoa">
+                No dishes selected yet. Add items from the menu, or send a general enquiry on WhatsApp.
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-sm font-bold">
+              Your name
+              <input
+                value={details.name}
+                onChange={(event) => setDetails((value) => ({ ...value, name: event.target.value }))}
+                placeholder="Name"
+                className="min-h-12 rounded-xl border border-cocoa/12 bg-white px-4 text-sm font-semibold outline-none focus:border-terracotta"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-bold">
+              Preferred time
+              <input
+                value={details.time}
+                onChange={(event) => setDetails((value) => ({ ...value, time: event.target.value }))}
+                placeholder="Today 18:00"
+                className="min-h-12 rounded-xl border border-cocoa/12 bg-white px-4 text-sm font-semibold outline-none focus:border-terracotta"
+              />
+            </label>
+            <div className="grid gap-1.5 text-sm font-bold">
+              Order type
+              <div className="grid grid-cols-2 gap-2 rounded-xl bg-white p-1">
+                {[
+                  ['pickup', 'Pickup'],
+                  ['delivery', 'Delivery'],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setDetails((detailsValue) => ({ ...detailsValue, orderType: value }))}
+                    className={`min-h-10 rounded-lg text-sm font-black transition ${details.orderType === value ? 'bg-brown text-ivory' : 'text-cocoa hover:bg-cream'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className="grid gap-1.5 text-sm font-bold">
+              Area
+              <input
+                value={details.area}
+                onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
+                placeholder="Vacoas / delivery area"
+                className="min-h-12 rounded-xl border border-cocoa/12 bg-white px-4 text-sm font-semibold outline-none focus:border-terracotta"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-bold sm:col-span-2">
+              Notes
+              <textarea
+                value={details.note}
+                onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
+                placeholder="Spice level, allergies, flavours, or special request"
+                rows={3}
+                className="resize-none rounded-xl border border-cocoa/12 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-terracotta"
+              />
+            </label>
+          </div>
+
+          <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
+            <a
+              href={whatsappOrderHref}
+              className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-curry px-5 py-3 text-sm font-black text-brown transition hover:-translate-y-0.5 hover:bg-[#ffc4dc]"
+            >
+              <WhatsAppIcon size={18} /> Send WhatsApp Order
+            </a>
+            {orderCount > 0 && (
+              <button
+                type="button"
+                onClick={onClearOrder}
+                className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full border border-cocoa/12 bg-white px-5 py-3 text-sm font-black text-cocoa transition hover:bg-cream"
+              >
+                <Trash2 size={17} /> Clear
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileOrderBar({ orderCount, onOpenOrder }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-2.5 pb-[calc(0.7rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur md:hidden">
       <div className="mx-auto grid max-w-md grid-cols-[0.9fr_0.9fr_1.2fr] gap-2">
@@ -706,9 +943,14 @@ function MobileOrderBar() {
         <a href={phoneHref} className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown">
           <Phone size={17} /> Call
         </a>
-        <a href={whatsappHref} className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full bg-curry px-2 text-xs font-black text-brown">
-          <WhatsAppIcon size={17} /> WhatsApp
-        </a>
+        <button
+          type="button"
+          onClick={onOpenOrder}
+          className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full bg-curry px-2 text-xs font-black text-brown"
+        >
+          {orderCount ? <ShoppingBag size={16} /> : <WhatsAppIcon size={17} />}
+          {orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'}` : 'Order'}
+        </button>
       </div>
     </div>
   );
@@ -762,23 +1004,90 @@ function Footer() {
 
 function App() {
   useReveal();
+  const [orderItems, setOrderItems] = useState({});
+  const [orderOpen, setOrderOpen] = useState(false);
+  const orderCount = getOrderCount(orderItems);
+
+  const addItem = (item) => {
+    setOrderItems((current) => ({
+      ...current,
+      [item.name]: {
+        ...item,
+        quantity: (current[item.name]?.quantity || 0) + 1,
+      },
+    }));
+  };
+
+  const incrementItem = (name) => {
+    setOrderItems((current) => {
+      const item = current[name];
+      if (!item) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [name]: {
+          ...item,
+          quantity: item.quantity + 1,
+        },
+      };
+    });
+  };
+
+  const decrementItem = (name) => {
+    setOrderItems((current) => {
+      const item = current[name];
+      if (!item) {
+        return current;
+      }
+
+      if (item.quantity <= 1) {
+        const next = { ...current };
+        delete next[name];
+        return next;
+      }
+
+      return {
+        ...current,
+        [name]: {
+          ...item,
+          quantity: item.quantity - 1,
+        },
+      };
+    });
+  };
 
   return (
     <>
-      <Navbar />
+      <Navbar onOpenOrder={() => setOrderOpen(true)} />
       <main>
-        <Hero />
+        <Hero onOpenOrder={() => setOrderOpen(true)} />
         <FeaturedDishes />
-        <MenuCategory />
+        <MenuCategory
+          orderItems={orderItems}
+          onAddItem={addItem}
+          onIncrementItem={incrementItem}
+          onDecrementItem={decrementItem}
+          onOpenOrder={() => setOrderOpen(true)}
+        />
         <BreakfastSection />
         <DessertGrid />
         <StorySection />
-        <OrderSteps />
+        <OrderSteps onOpenOrder={() => setOrderOpen(true)} />
         <Testimonials />
-        <CTASection />
+        <CTASection onOpenOrder={() => setOrderOpen(true)} />
       </main>
       <Footer />
-      <MobileOrderBar />
+      <MobileOrderBar orderCount={orderCount} onOpenOrder={() => setOrderOpen(true)} />
+      <OrderDrawer
+        open={orderOpen}
+        orderItems={orderItems}
+        onClose={() => setOrderOpen(false)}
+        onIncrementItem={incrementItem}
+        onDecrementItem={decrementItem}
+        onClearOrder={() => setOrderItems({})}
+      />
     </>
   );
 }
