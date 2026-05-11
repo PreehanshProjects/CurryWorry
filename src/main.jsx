@@ -62,6 +62,17 @@ const featuredDishes = [
 
 const menuSections = [
   {
+    title: 'Breakfast',
+    note: 'Available for morning preorders, takeaway, or nearby delivery when confirmed.',
+    items: [
+      ['Pancakes', 'From Rs 75', 'Nature, chocolat, vanille, amande, or fruits rouges'],
+      ['Muffins', 'From Rs 45', 'Chocolat, amande, or vanille'],
+      ['Toast', 'From Rs 60', 'Simple breakfast option for takeaway'],
+      ['Omelettes', 'From Rs 85', 'Confirm fillings and quantity'],
+      ['Smoothies & Milkshakes', 'From Rs 95', 'Vanille, chocolat, amande, and daily options'],
+    ],
+  },
+  {
     title: 'Breads & Sides',
     note: 'Order by piece or tray. Best paired with rougaille, curry, and family portions.',
     items: [
@@ -286,70 +297,75 @@ function Navbar() {
 function SectionHeader({ eyebrow, title, text, align = 'center', light = false }) {
   return (
     <div data-reveal className={align === 'left' ? 'max-w-2xl' : 'mx-auto max-w-3xl text-center'}>
-      <p className={`mb-3 text-xs font-black uppercase tracking-[0.24em] ${light ? 'text-curry' : 'text-terracotta'}`}>
+      <p className={`mb-2 text-[0.68rem] font-black uppercase tracking-[0.18em] sm:mb-3 sm:text-xs sm:tracking-[0.24em] ${light ? 'text-curry' : 'text-terracotta'}`}>
         {eyebrow}
       </p>
-      <h2 className={`font-display text-[2.35rem] font-semibold leading-[1.04] sm:text-5xl ${light ? 'text-ivory' : 'text-brown'}`}>
+      <h2 className={`font-display text-[2rem] font-semibold leading-[1.06] sm:text-5xl ${light ? 'text-ivory' : 'text-brown'}`}>
         {title}
       </h2>
-      {text && <p className={`mt-5 text-base leading-8 sm:text-lg ${light ? 'text-ivory/72' : 'text-cocoa/76'}`}>{text}</p>}
+      {text && <p className={`mt-4 text-[0.95rem] leading-7 sm:mt-5 sm:text-lg sm:leading-8 ${light ? 'text-ivory/72' : 'text-cocoa/76'}`}>{text}</p>}
     </div>
   );
 }
 
 function Hero() {
   return (
-    <section id="home" className="relative min-h-[92svh] overflow-hidden bg-brown text-ivory sm:min-h-[100svh]">
+    <section id="home" className="relative overflow-hidden bg-brown text-ivory sm:min-h-[100svh]">
       <img
         src="https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=1800&q=88"
         alt="Homemade Mauritian food with warm curries, breads, and chutneys"
         className="absolute inset-0 h-full w-full object-cover opacity-60"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(58,58,58,0.96),rgba(58,58,58,0.72)_48%,rgba(58,58,58,0.24))]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(58,58,58,0.98)_0%,rgba(58,58,58,0.88)_42%,rgba(58,58,58,0.58)_100%)] sm:bg-[linear-gradient(90deg,rgba(58,58,58,0.96),rgba(58,58,58,0.72)_48%,rgba(58,58,58,0.24))]" />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-cream to-transparent" />
 
-      <div className="relative mx-auto flex min-h-[92svh] max-w-7xl items-center px-4 pb-12 pt-24 sm:min-h-[100svh] sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
-        <div data-reveal className="max-w-3xl">
-          <div className="mb-5 inline-flex max-w-full items-center gap-3 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm text-ivory/84 backdrop-blur">
+      <div className="relative mx-auto flex max-w-7xl items-center px-4 pb-12 pt-28 sm:min-h-[100svh] sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+        <div data-reveal className="w-full max-w-3xl">
+          <div className="mb-4 inline-flex max-w-full items-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-3.5 py-2 text-xs text-ivory/84 backdrop-blur sm:mb-5 sm:gap-3 sm:px-4 sm:text-sm">
             <Leaf size={16} className="text-leaf" />
             <span className="leading-5">Homemade on order, pickup and local delivery</span>
           </div>
-          <h1 className="font-display text-[clamp(3rem,14vw,5.8rem)] font-semibold leading-[0.98] text-ivory lg:text-8xl">
+          <h1 className="font-display text-[clamp(2.65rem,16vw,5.8rem)] font-semibold leading-[0.98] text-ivory lg:text-8xl">
             Curry Worry
           </h1>
-          <p className="mt-4 font-display text-[clamp(1.75rem,7vw,3.35rem)] font-semibold leading-tight text-curry">
+          <p className="mt-3 max-w-[18ch] font-display text-[clamp(1.55rem,8vw,3.35rem)] font-semibold leading-[1.04] text-curry sm:mt-4 sm:max-w-none sm:leading-tight">
             Manze lakaz Moris, ready by preorder.
           </p>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-ivory/78 sm:mt-7 sm:text-xl sm:leading-8">
+          <p className="mt-5 max-w-2xl text-[0.95rem] leading-7 text-ivory/78 sm:mt-7 sm:text-xl sm:leading-8">
             Farata, rougaille, touffe, sweets, breakfast, and family-style Mauritian comfort food cooked fresh in small
             batches. Warm, generous, and made to taste like home.
           </p>
-          <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
-            <a href={whatsappHref} className="group inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto sm:px-7">
-              WhatsApp Order <WhatsAppIcon size={19} className="transition group-hover:rotate-6" />
+          <div className="mt-6 grid gap-2.5 sm:mt-8 sm:flex sm:flex-row sm:gap-3">
+            <a href={whatsappHref} className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-4 py-3 text-sm font-black leading-none text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:min-h-14 sm:w-auto sm:px-7 sm:py-4 sm:text-base">
+              <WhatsAppIcon size={18} className="shrink-0 transition group-hover:rotate-6" />
+              <span>WhatsApp Order</span>
             </a>
-            <a href={phoneHref} className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-6 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:w-auto sm:px-7">
-              Call {phoneDisplay}
+            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-7 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:inline-flex">
+              <Phone size={16} className="shrink-0" />
+              <span>Call {phoneDisplay}</span>
             </a>
-            <a href="#menu" className="hidden min-h-14 w-full items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-6 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:inline-flex sm:w-auto sm:px-7">
-              View Menu <ArrowRight size={19} />
+            <a href="#menu" className="hidden min-h-14 w-auto items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-7 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:inline-flex">
+              <span>View Menu</span>
+              <ArrowRight size={17} className="shrink-0" />
             </a>
           </div>
 
-          <div className="mt-5 flex gap-2 overflow-x-auto pb-1 sm:hidden">
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:hidden">
             {quickOrderItems.map((item) => (
-              <a key={item} href="#menu" className="shrink-0 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-bold text-ivory/86 backdrop-blur">
+              <a key={item} href="#menu" className="rounded-full border border-white/16 bg-white/10 px-2.5 py-2 text-center text-[0.72rem] font-bold leading-none text-ivory/86 backdrop-blur">
                 {item}
               </a>
             ))}
           </div>
 
-          <div className="mt-7 hidden gap-2 sm:grid sm:grid-cols-2 lg:max-w-2xl">
+          <div className="mt-8 hidden gap-2.5 sm:grid sm:grid-cols-2 lg:max-w-2xl">
             {orderFacts.map(([label, value]) => (
               <div key={label} className="flex items-center gap-3 rounded-2xl border border-white/12 bg-white/9 px-4 py-3 text-sm backdrop-blur">
                 <CheckCircle2 size={17} className="shrink-0 text-curry" />
-                <span className="font-bold text-ivory">{label}:</span>
-                <span className="text-ivory/70">{value}</span>
+                <div className="flex flex-wrap gap-x-2">
+                  <span className="font-bold text-ivory">{label}:</span>
+                  <span className="text-ivory/70">{value}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -387,9 +403,9 @@ function FoodCard({ dish }) {
         </span>
       </div>
       <div className="p-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="grid gap-3 sm:flex sm:items-start sm:justify-between sm:gap-4">
           <h3 className="font-display text-2xl font-semibold text-brown">{dish.name}</h3>
-          <span className="rounded-full bg-leaf/12 px-3 py-1 text-xs font-black text-leaf">{dish.spice}</span>
+          <span className="w-fit rounded-full bg-leaf/12 px-3 py-1 text-xs font-black text-leaf">{dish.spice}</span>
         </div>
         <p className="mt-3 text-sm font-black text-terracotta">{dish.price}</p>
         <p className="mt-4 text-sm leading-7 text-cocoa/74">{dish.description}</p>
@@ -440,7 +456,7 @@ function MenuCategory() {
           ))}
         </div>
 
-        <div className="mt-7 grid gap-4 sm:mt-9 lg:grid-cols-3">
+        <div className="mt-7 grid gap-4 sm:mt-9 md:grid-cols-2 xl:grid-cols-4">
           {menuSections.map((section) => (
             <article data-reveal key={section.title} className="rounded-[1.1rem] border border-white/10 bg-white/[0.07] p-4 backdrop-blur sm:p-5">
               <div className="border-b border-white/10 pb-4">
@@ -450,9 +466,9 @@ function MenuCategory() {
               <ul className="divide-y divide-white/9">
                 {section.items.map(([item, guide, detail]) => (
                   <li key={item} className="grid gap-2 py-3.5 sm:py-4">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="grid gap-2 min-[420px]:flex min-[420px]:items-start min-[420px]:justify-between min-[420px]:gap-3">
                       <span className="font-semibold leading-6 text-ivory">{item}</span>
-                      <span className="shrink-0 rounded-full bg-curry/14 px-3 py-1 text-xs font-black text-curry">
+                      <span className="w-fit shrink-0 rounded-full bg-curry/14 px-3 py-1 text-xs font-black text-curry">
                         {guide}
                       </span>
                     </div>
@@ -489,7 +505,7 @@ function BreakfastSection() {
             <img
               src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=1000&q=85"
               alt="Homemade pancakes and breakfast table"
-              className="h-[420px] w-full object-cover"
+              className="h-64 w-full object-cover sm:h-[420px]"
             />
           </div>
         </div>
@@ -548,7 +564,7 @@ function StorySection() {
           <img
             src="/assets/farata-rougaille-touni.png"
             alt="Fresh homemade farata with rougaille touni"
-            className="aspect-[4/5] w-full rounded-[1.2rem] object-cover shadow-warm"
+            className="aspect-[4/3] w-full rounded-[1.2rem] object-cover shadow-warm sm:aspect-[4/5]"
           />
           <div className="mt-4 max-w-xs rounded-3xl bg-ivory p-5 shadow-xl sm:absolute sm:-bottom-6 sm:left-6 sm:mt-0">
             <p className="font-display text-3xl font-semibold text-brown">Cooked on order</p>
@@ -596,16 +612,16 @@ function OrderSteps() {
               <a href={whatsappHref} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc]">
                 <WhatsAppIcon size={18} /> WhatsApp Order
               </a>
-              <a href={phoneHref} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/16 bg-white/10 px-6 py-4 font-bold text-ivory transition hover:-translate-y-1 hover:bg-white/16">
-                Call {phoneDisplay}
+              <a href={phoneHref} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/16 bg-white/10 px-6 py-4 text-center font-bold text-ivory transition hover:-translate-y-1 hover:bg-white/16">
+                <Phone size={17} className="shrink-0" /> Call {phoneDisplay}
               </a>
             </div>
             <div className="mt-6 grid gap-3 text-sm text-ivory/70">
               {orderFacts.map(([label, value]) => (
-                <p key={label} className="flex items-center justify-between gap-4 border-t border-white/10 pt-3">
+                <div key={label} className="flex flex-col gap-1 border-t border-white/10 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                   <span className="font-bold text-ivory">{label}</span>
-                  <span className="text-right">{value}</span>
-                </p>
+                  <span className="sm:text-right">{value}</span>
+                </div>
               ))}
             </div>
           </div>
@@ -654,7 +670,7 @@ function Testimonials() {
 function CTASection() {
   return (
     <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-      <div data-reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.8rem] bg-brown px-5 py-14 text-center text-ivory shadow-[0_30px_100px_rgba(58,58,58,0.2)] sm:rounded-[2.4rem] sm:px-10 sm:py-16 lg:py-24">
+      <div data-reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.2rem] bg-brown px-5 py-12 text-center text-ivory shadow-[0_30px_100px_rgba(58,58,58,0.2)] sm:rounded-[2.4rem] sm:px-10 sm:py-16 lg:py-24">
         <img
           src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1600&q=85"
           alt="Warm spices used in Mauritian homemade cooking"
@@ -662,11 +678,11 @@ function CTASection() {
         />
         <div className="absolute inset-0 bg-brown/74" />
         <div className="relative mx-auto max-w-3xl">
-          <p className="mb-3 text-xs font-black uppercase tracking-[0.24em] text-curry">Order Homemade</p>
-          <h2 className="font-display text-[2.45rem] font-semibold leading-tight sm:text-6xl">
+          <p className="mb-3 text-[0.68rem] font-black uppercase tracking-[0.18em] text-curry sm:text-xs sm:tracking-[0.24em]">Order Homemade</p>
+          <h2 className="font-display text-[2rem] font-semibold leading-tight sm:text-6xl">
             Bring manze lakaz to your table today.
           </h2>
-          <p className="mt-5 text-lg leading-8 text-ivory/74">
+          <p className="mt-5 text-[0.95rem] leading-7 text-ivory/74 sm:text-lg sm:leading-8">
             Whether it is farata for lunch, breakfast for the family, or sweets for the weekend, we will prepare it with care.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
@@ -682,15 +698,15 @@ function CTASection() {
 
 function MobileOrderBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-3 py-3 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur md:hidden">
-      <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
-        <a href="#menu" className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-3 text-sm font-black text-brown">
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-2.5 pb-[calc(0.7rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur md:hidden">
+      <div className="mx-auto grid max-w-md grid-cols-[0.9fr_0.9fr_1.2fr] gap-2">
+        <a href="#menu" className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown">
           <ArrowRight size={16} /> Menu
         </a>
-        <a href={phoneHref} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-cocoa/12 bg-white px-4 text-sm font-black text-brown">
+        <a href={phoneHref} className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown">
           <Phone size={17} /> Call
         </a>
-        <a href={whatsappHref} className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full bg-curry px-3 text-sm font-black text-brown">
+        <a href={whatsappHref} className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full bg-curry px-2 text-xs font-black text-brown">
           <WhatsAppIcon size={17} /> WhatsApp
         </a>
       </div>
