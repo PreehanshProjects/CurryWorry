@@ -831,36 +831,39 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className={`mx-auto flex h-full max-w-2xl items-end transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1) sm:items-center ${open ? 'translate-y-0' : 'translate-y-full sm:translate-y-8 sm:opacity-0'}`}>
-        <div className="relative max-h-[94svh] w-full overflow-hidden rounded-t-[2rem] bg-ivory text-brown shadow-[0_-10px_40px_rgba(0,0,0,0.2)] sm:rounded-[2.4rem]">
-          {/* Drag Handle for Mobile */}
-          <div className="flex justify-center pt-3 pb-1 sm:hidden">
-            <div className="h-1.5 w-12 rounded-full bg-brown/10" />
-          </div>
-          
-          <div className="overflow-y-auto p-5 pt-2 sm:p-8 sm:pt-8">
-            <div className="flex items-start justify-between gap-4">
+        <div className="relative flex max-h-[94svh] w-full flex-col overflow-hidden rounded-t-[2.5rem] bg-ivory text-brown shadow-[0_-10px_50px_rgba(0,0,0,0.3)] sm:rounded-[2.8rem]">
+          {/* Header & Drag Handle */}
+          <div className="shrink-0 bg-ivory/80 backdrop-blur-md">
+            <div className="flex justify-center pt-3.5 pb-1.5 sm:hidden">
+              <div className="h-1.5 w-14 rounded-full bg-brown/15" />
+            </div>
+            
+            <div className="flex items-start justify-between gap-4 px-6 pt-3 pb-5 sm:px-9 sm:pt-8 sm:pb-6">
               <div>
-                <p className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-terracotta sm:text-xs">WhatsApp Order</p>
-                <h2 className="mt-1 font-display text-3xl font-semibold leading-tight sm:text-4xl">Review your order</h2>
+                <p className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-terracotta sm:text-xs">WhatsApp Order</p>
+                <h2 className="mt-1.5 font-display text-3xl font-semibold leading-tight sm:text-4xl">Review your order</h2>
               </div>
               <button
                 type="button"
                 aria-label="Close order review"
                 onClick={onClose}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown transition active:scale-90 tap-highlight-none"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown transition hover:bg-cream active:scale-90 tap-highlight-none shadow-sm"
               >
-                <X size={20} />
+                <X size={22} />
               </button>
             </div>
+          </div>
 
-            <div className="mt-6 rounded-3xl border border-cocoa/10 bg-white p-3.5 shadow-sm">
+          {/* Scrollable Content */}
+          <div className="modern-scroll grow overflow-y-auto px-6 pb-6 sm:px-9 sm:pb-8">
+            <div className="rounded-[2rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
               {lines.length ? (
-                <div className="grid gap-2.5">
+                <div className="grid gap-3">
                   {lines.map((item) => (
-                    <div key={item.name} className="grid gap-4 rounded-2xl bg-cream/60 p-3.5 min-[420px]:grid-cols-[1fr_auto] min-[420px]:items-center">
+                    <div key={item.name} className="grid gap-4 rounded-[1.4rem] bg-cream/50 p-4 min-[480px]:grid-cols-[1fr_auto] min-[480px]:items-center">
                       <div>
-                        <p className="font-bold leading-tight text-brown">{item.name}</p>
-                        <p className="mt-1 text-xs font-black text-terracotta">{item.price}</p>
+                        <p className="font-bold leading-tight text-brown sm:text-lg">{item.name}</p>
+                        <p className="mt-1.5 text-xs font-black text-terracotta uppercase tracking-wider">{item.price}</p>
                       </div>
                       <QuantityControl
                         name={item.name}
@@ -874,32 +877,32 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                   ))}
                 </div>
               ) : (
-                <div className="rounded-2xl bg-cream/70 p-5 text-sm leading-7 text-cocoa/80 text-center">
-                  No dishes selected yet. Add items from the menu to build your order.
+                <div className="rounded-2xl bg-cream/70 py-10 px-6 text-sm leading-8 text-cocoa/70 text-center font-semibold">
+                  No dishes selected yet. Explore the menu to start your order.
                 </div>
               )}
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+            <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
                 Your name
                 <input
                   value={details.name}
                   onChange={(event) => setDetails((value) => ({ ...value, name: event.target.value }))}
                   placeholder="Enter your name"
-                  className="min-h-13 rounded-2xl border border-cocoa/12 bg-white px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                  className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                 />
               </label>
-              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
                 Preferred time
                 <input
                   value={details.time}
                   onChange={(event) => setDetails((value) => ({ ...value, time: event.target.value }))}
                   placeholder="e.g. Today 18:00"
-                  className="min-h-13 rounded-2xl border border-cocoa/12 bg-white px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                  className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                 />
               </label>
-              <div className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+              <div className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
                 Order type
                 <div className="grid grid-cols-2 gap-2 rounded-2xl bg-cocoa/5 p-1.5">
                   {[
@@ -910,49 +913,52 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                       key={value}
                       type="button"
                       onClick={() => setDetails((detailsValue) => ({ ...detailsValue, orderType: value }))}
-                      className={`min-h-11 rounded-xl text-sm font-black transition-all active:scale-95 tap-highlight-none ${details.orderType === value ? 'bg-brown text-ivory shadow-md' : 'text-cocoa/70 hover:bg-white/50'}`}
+                      className={`min-h-12 rounded-xl text-sm font-black transition-all active:scale-95 tap-highlight-none ${details.orderType === value ? 'bg-brown text-ivory shadow-lg' : 'text-cocoa/60 hover:bg-white/50'}`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
               </div>
-              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
                 Area
                 <input
                   value={details.area}
                   onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
                   placeholder="Vacoas or delivery area"
-                  className="min-h-13 rounded-2xl border border-cocoa/12 bg-white px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                  className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                 />
               </label>
-              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60 sm:col-span-2">
+              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 sm:col-span-2">
                 Notes
                 <textarea
                   value={details.note}
                   onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
                   placeholder="Spice level, allergies, or special requests..."
                   rows={3}
-                  className="resize-none rounded-2xl border border-cocoa/12 bg-white px-5 py-4 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                  className="resize-none rounded-2xl border border-cocoa/12 bg-white px-6 py-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                 />
               </label>
             </div>
+          </div>
 
-            <div className="mt-8 grid gap-3 pb-4 sm:grid-cols-[1fr_auto] sm:pb-0">
+          {/* Sticky Footer Actions */}
+          <div className="shrink-0 border-t border-cocoa/10 bg-ivory/80 px-6 pt-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:px-9 sm:pb-10 sm:pt-6">
+            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
               <a
                 href={whatsappOrderHref}
-                className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-lg shadow-curry/20"
+                className="group inline-flex min-h-15 items-center justify-center gap-3.5 rounded-full bg-curry px-10 py-5 text-lg font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-[0_12px_40px_rgba(255,179,209,0.3)]"
               >
-                <WhatsAppIcon size={20} className="transition group-hover:rotate-6" />
+                <WhatsAppIcon size={24} className="transition group-hover:rotate-6" />
                 <span>Send WhatsApp Order</span>
               </a>
               {orderCount > 0 && (
                 <button
                   type="button"
                   onClick={onClearOrder}
-                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-6 py-4 text-sm font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none"
+                  className="inline-flex min-h-15 items-center justify-center gap-3 rounded-full border border-cocoa/12 bg-white px-10 py-5 text-sm font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={22} />
                   <span>Clear</span>
                 </button>
               )}
