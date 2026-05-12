@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   ArrowRight,
@@ -111,6 +111,25 @@ const navItems = [
 
 const quickOrderItems = ['Farata', 'Rougaille', 'Cari poule', 'Touffe', 'Sweets'];
 
+const deliveryMinimum = 500;
+
+const deliveryLocations = [
+  { id: 'vacoas-market', name: 'Vacoas Market', fee: 75, zone: 'Zone 1' },
+  { id: 'soflo', name: "So'Flo", fee: 75, zone: 'Zone 1' },
+  { id: 'phoenix-mall', name: 'Phoenix Mall', fee: 125, zone: 'Zone 2' },
+  { id: 'curepipe', name: 'Curepipe', fee: 125, zone: 'Zone 2' },
+  { id: 'trianon', name: 'Trianon', fee: 175, zone: 'Zone 3' },
+  { id: 'quatre-bornes', name: 'Quatre Bornes', fee: 175, zone: 'Zone 3' },
+  { id: 'ebene', name: 'Ebene', fee: 175, zone: 'Zone 3' },
+  { id: 'door', name: 'Door delivery', fee: null, zone: 'On request' },
+];
+
+const timeWindows = [
+  ['lunch', 'Lunch', '11:30 AM - 1:30 PM'],
+  ['evening', 'Evening', '5:30 PM - 7:30 PM'],
+  ['custom', 'Custom time', 'Confirm exact time'],
+];
+
 const galleryThumbModules = import.meta.glob('./assets/gallery-thumbs/*.{jpg,jpeg,webp}', { eager: true });
 const galleryItems = Object.values(galleryThumbModules).map((module) => ({
   full: module.default,
@@ -148,7 +167,7 @@ const featuredDishes = [
 const menuSections = [
   {
     title: 'Breakfast',
-    note: 'Available for morning preorders, takeaway, or nearby delivery when confirmed.',
+    note: 'Available for morning preorders, takeaway, or fixed pickup-point delivery.',
     items: [
       ['Pancakes', 'From Rs 75', 'Nature, chocolat, vanille, amande, or fruits rouges', false],
       ['Muffins', 'From Rs 45', 'Chocolat, amande, or vanille', false],
@@ -246,15 +265,15 @@ const desserts = [
 
 const orderSteps = [
   ['Choose dishes', 'Pick your dishes, quantities, and mention if you need individual or family portions.'],
-  ['Message details', 'Send pickup time, delivery area, and any allergy or spice preference.'],
-  ['Confirm final total', 'Portion size, delivery coverage, payment method, and final price are confirmed on WhatsApp before cooking.'],
-  ['Collect warm', 'Pickup in Vacoas or arrange nearby delivery when available.'],
+  ['Message details', 'Send your pickup point, time window, and any allergy or spice preference.'],
+  ['Confirm final total', 'Portion size, delivery fee, payment method, and final price are confirmed on WhatsApp before cooking.'],
+  ['Collect warm', 'Pickup in Vacoas or meet at a selected delivery point.'],
 ];
 
 const orderFacts = [
-  ['Pickup', 'Vacoas, Mauritius'],
+  ['Pickup', 'Vacoas, free'],
   ['Hours', 'Mon-Sat, 08:00-20:00'],
-  ['Delivery', 'Vacoas and nearby areas, fee confirmed by location'],
+  ['Delivery', 'Pickup points from Rs 75, minimum order Rs 500'],
   ['Payment', `Juice on ${phoneDisplay} or cash on delivery`],
   ['Final total', 'Confirmed on WhatsApp before cooking'],
 ];
@@ -262,7 +281,7 @@ const orderFacts = [
 const orderConfidenceNotes = [
   ['Portions', 'Lunch boxes, small sides, and family portions are available depending on the dish.'],
   ['Minimums', 'Farata, roti, and puri are best ordered from 6 pieces; sweets and trays can be confirmed by request.'],
-  ['Delivery fee', 'Delivery covers Vacoas and nearby areas when available. The fee is confirmed before preparation.'],
+  ['Delivery fee', 'Pickup-point delivery starts at Rs 75. Door delivery is confirmed on WhatsApp.'],
 ];
 
 const paymentOptions = [
@@ -278,6 +297,52 @@ function getOrderLines(orderItems) {
   return Object.values(orderItems).filter((item) => item.quantity > 0);
 }
 
+function getGuidePrice(price) {
+  const match = price.match(/Rs\s*(\d+)/i);
+  return match ? Number.parseInt(match[1], 10) : 0;
+}
+
+function getEstimatedSubtotal(orderItems) {
+  return getOrderLines(orderItems).reduce((total, item) => total + getGuidePrice(item.price) * item.quantity, 0);
+}
+
+function formatPreferredTime(time) {
+  if (!time) {
+    return '[Preferred time]';
+  }
+
+  const [hourText, minuteText] = time.split(':');
+  const hour = Number.parseInt(hourText, 10);
+  const minute = minuteText || '00';
+
+  if (Number.isNaN(hour)) {
+    return time;
+  }
+
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+
+  return `${displayHour}:${minute} ${period}`;
+}
+
+function getSelectedDeliveryLocation(locationId) {
+  return deliveryLocations.find((location) => location.id === locationId) || deliveryLocations[0];
+}
+
+function getSelectedTimeWindow(windowId) {
+  return timeWindows.find(([value]) => value === windowId) || timeWindows[0];
+}
+
+function formatTimeChoice(details) {
+  const [, label, range] = getSelectedTimeWindow(details.timeWindow);
+
+  if (details.timeWindow === 'custom') {
+    return `Custom time: ${formatPreferredTime(details.time.trim())}`;
+  }
+
+  return `${label}, ${range}`;
+}
+
 function buildWhatsAppMessage(orderItems, details) {
   const lines = getOrderLines(orderItems);
   const itemText = lines.length
@@ -286,8 +351,17 @@ function buildWhatsAppMessage(orderItems, details) {
 
   const customerName = details.name.trim() || '[Your name]';
   const orderType = details.orderType === 'delivery' ? 'Delivery' : 'Pickup';
-  const preferredTime = details.time.trim() || '[Preferred time]';
-  const area = details.area.trim() || '[Area / pickup confirmation]';
+  const preferredTime = formatTimeChoice(details);
+  const deliveryLocation = getSelectedDeliveryLocation(details.deliveryLocation);
+  const deliveryPlace = details.orderType === 'delivery'
+    ? deliveryLocation.name
+    : 'Vacoas pickup';
+  const deliveryFee = details.orderType === 'delivery'
+    ? (deliveryLocation.fee === null ? 'From Rs 200, confirm on WhatsApp' : `Rs ${deliveryLocation.fee}`)
+    : 'Free';
+  const area = details.orderType === 'delivery' && deliveryLocation.id === 'door'
+    ? (details.area.trim() || '[Delivery address / area]')
+    : (details.area.trim() || 'No extra area note');
   const note = details.note.trim() || 'No special note';
   const paymentMethod = details.paymentMethod === 'cash'
     ? 'Cash on delivery / pickup'
@@ -302,12 +376,14 @@ function buildWhatsAppMessage(orderItems, details) {
     'Order details:',
     `- Name: ${customerName}`,
     `- Type: ${orderType}`,
-    `- Preferred time: ${preferredTime}`,
-    `- Area: ${area}`,
+    `- Time window: ${preferredTime}`,
+    `- Delivery place: ${deliveryPlace}`,
+    `- Delivery fee: ${deliveryFee}`,
+    `- Area note: ${area}`,
     `- Payment: ${paymentMethod}`,
     `- Notes: ${note}`,
     '',
-    'Please confirm portion size, availability, delivery coverage, delivery fee if needed, and final total before preparing. Thank you.',
+    'Please confirm portion size, availability, delivery details, payment method, and final total before preparing. Thank you.',
   ].join('\n');
 }
 
@@ -656,7 +732,7 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
           light
           eyebrow="Menu Guide"
           title="Pick dishes, send quantities, confirm the time."
-          text="Use this as a quick ordering list. Prices are starting guides; portion size, delivery fee, and final total are confirmed on WhatsApp before cooking starts."
+          text="Use this as a quick ordering list. Prices are starting guides; pickup-point delivery starts at Rs 75 and the final total is confirmed on WhatsApp before cooking starts."
         />
         
         {/* Search & Simplified Filters */}
@@ -686,7 +762,7 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
         <div data-reveal className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-[1.2rem] border border-curry/22 bg-curry/12 p-3 text-sm font-semibold text-ivory/82 sm:grid-cols-3 sm:p-4">
           {[
             ['1. Choose', 'List dishes and quantities'],
-            ['2. Confirm', 'Portions, time, and area'],
+            ['2. Confirm', 'Portions, time, and place'],
             ['3. Pay total', 'Final price confirmed first'],
           ].map(([label, text]) => (
             <div key={label} className="rounded-xl bg-white/[0.07] px-4 py-3">
@@ -951,12 +1027,12 @@ function OrderSteps({ onOpenOrder }) {
         <SectionHeader
           eyebrow="Order Info"
           title="Simple manual ordering, no app account needed."
-          text={`Order through WhatsApp or phone, then confirm portions, timing, Vacoas or nearby delivery, payment by Juice on ${phoneDisplay} or cash, and final total before preparation.`}
+          text={`Order through WhatsApp or phone, then confirm portions, timing, pickup-point delivery from Rs 75, payment by Juice on ${phoneDisplay} or cash, and final total before preparation.`}
         />
         <div className="mt-10 grid gap-5 sm:mt-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
           <div data-reveal className="rounded-[2rem] bg-brown p-7 text-ivory shadow-warm sm:p-10">
             <p className="font-display text-4xl font-semibold">Ready to order?</p>
-            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability, portion size, Vacoas or nearby delivery coverage, delivery fee, payment method, and final total are confirmed manually before cooking starts.</p>
+            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, time window, and pickup point. Delivery is available from Rs 75 with a Rs 500 minimum order; door delivery is confirmed manually on WhatsApp.</p>
             <div className="mt-8 grid gap-4">
               <button type="button" onClick={onOpenOrder} className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-3.5 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:min-h-14 sm:px-8 sm:py-4 sm:text-base">
                 <WhatsAppIcon size={20} /> WhatsApp Order
@@ -975,6 +1051,18 @@ function OrderSteps({ onOpenOrder }) {
             </div>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
+          <div data-reveal className="rounded-[1.6rem] border border-cocoa/10 bg-cream p-7 shadow-soft sm:col-span-2 sm:p-8">
+            <h3 className="font-display text-2xl font-semibold text-brown sm:text-3xl">Delivery pickup points</h3>
+            <p className="mt-4 text-sm leading-8 text-cocoa/72 sm:text-base">Minimum order for delivery is Rs {deliveryMinimum}. Door delivery starts from Rs 200 and is confirmed on WhatsApp.</p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {deliveryLocations.filter((location) => location.fee !== null).map((location) => (
+                <div key={location.id} className="flex items-center justify-between gap-4 rounded-2xl bg-ivory px-4 py-3 text-sm shadow-sm">
+                  <span className="font-bold text-brown">{location.name}</span>
+                  <span className="shrink-0 rounded-full bg-curry/30 px-3 py-1 text-xs font-black text-brown">Rs {location.fee}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           {orderSteps.map(([title, text], index) => (
             <div data-reveal key={title} className="rounded-[1.6rem] border border-cocoa/10 bg-cream p-7 shadow-soft sm:p-8">
               <span className="grid h-14 w-14 place-items-center rounded-2xl bg-terracotta text-xl font-black text-ivory shadow-lg shadow-terracotta/20">
@@ -1047,194 +1135,532 @@ function CTASection({ onOpenOrder }) {
 }
 
 function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementItem, onSetItemQuantity, onClearOrder }) {
+  const scrollRef = useRef(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const [details, setDetails] = useState({
     name: '',
     orderType: 'pickup',
     paymentMethod: 'juice',
+    timeWindow: 'lunch',
     time: '',
+    deliveryLocation: 'vacoas-market',
     area: '',
     note: '',
   });
+  const [showRequiredErrors, setShowRequiredErrors] = useState(false);
 
   const lines = getOrderLines(orderItems);
   const orderCount = getOrderCount(orderItems);
+  const estimatedSubtotal = getEstimatedSubtotal(orderItems);
+  const selectedDeliveryLocation = getSelectedDeliveryLocation(details.deliveryLocation);
+  const selectedDeliveryFeeText = selectedDeliveryLocation.fee === null
+    ? 'From Rs 200, confirm on WhatsApp'
+    : `Rs ${selectedDeliveryLocation.fee}`;
+  const needsCustomTime = details.timeWindow === 'custom';
+  const needsDoorArea = details.orderType === 'delivery' && selectedDeliveryLocation.id === 'door';
+  const deliveryBelowMinimum = details.orderType === 'delivery' && estimatedSubtotal > 0 && estimatedSubtotal < deliveryMinimum;
+  const hasRequiredDetails = Boolean(
+    details.name.trim()
+      && (!needsCustomTime || details.time.trim())
+      && (!needsDoorArea || details.area.trim())
+      && !deliveryBelowMinimum,
+  );
+  const timeChoiceText = formatTimeChoice(details);
+  const orderTypeText = details.orderType === 'delivery' ? 'Delivery' : 'Pickup';
+  const deliveryPlaceText = details.orderType === 'delivery' ? selectedDeliveryLocation.name : 'Vacoas pickup';
+  const deliveryFeeText = details.orderType === 'delivery' ? selectedDeliveryFeeText : 'Free';
+  const paymentText = details.paymentMethod === 'cash' ? 'Cash on delivery / pickup' : `Juice on ${phoneDisplay}`;
   const whatsappOrderHref = `${whatsappHref}?text=${encodeURIComponent(buildWhatsAppMessage(orderItems, details))}`;
+  const steps = [
+    ['Order', 'Review dishes', 'Check quantities before adding your details.'],
+    ['Details', 'Pickup and timing', 'Choose pickup, delivery, payment, and timing.'],
+    ['Confirm', 'Final check', 'Approve the WhatsApp message before sending.'],
+  ];
+
+  useEffect(() => {
+    if (!open) return;
+
+    scrollRef.current?.scrollTo({ top: 0 });
+    setShowRequiredErrors(false);
+    setCurrentStep(0);
+  }, [open]);
+
+  const validateDetails = () => {
+    if (hasRequiredDetails) return true;
+
+    setShowRequiredErrors(true);
+
+    if (!details.name.trim()) {
+      document.getElementById('order-customer-name')?.focus();
+      return false;
+    }
+
+    if (needsCustomTime && !details.time.trim()) {
+      document.getElementById('order-preferred-time')?.focus();
+      return false;
+    }
+
+    if (needsDoorArea && !details.area.trim()) {
+      document.getElementById('order-delivery-area')?.focus();
+      return false;
+    }
+
+    return false;
+  };
+
+  const goToStep = (step) => {
+    setCurrentStep(step);
+    scrollRef.current?.scrollTo({ top: 0 });
+  };
+
+  const handleDetailsNext = () => {
+    if (!validateDetails()) return;
+
+    setShowRequiredErrors(false);
+    goToStep(2);
+  };
+
+  const handleOrderClick = (event) => {
+    if (validateDetails()) return;
+
+    event.preventDefault();
+  };
 
   return (
-    <div 
-      className={`fixed inset-0 z-[70] transition-all duration-500 ease-in-out ${open ? 'pointer-events-auto bg-brown/60 backdrop-blur-sm' : 'pointer-events-none bg-transparent backdrop-blur-0'}`} 
-      role="dialog" 
-      aria-modal="true" 
+    <div
+      className={`fixed inset-0 z-[70] transition-all duration-500 ease-in-out ${open ? 'pointer-events-auto bg-brown/68 backdrop-blur-sm' : 'pointer-events-none bg-transparent backdrop-blur-0'}`}
+      role="dialog"
+      aria-modal="true"
       aria-label="Review WhatsApp order"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(event) => event.target === event.currentTarget && onClose()}
     >
-      <div className={`mx-auto flex h-full max-w-2xl items-end transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1) sm:items-center ${open ? 'translate-y-0' : 'translate-y-full sm:translate-y-8 sm:opacity-0'}`}>
-        <div className="relative flex max-h-[94svh] w-full flex-col overflow-hidden rounded-t-[2.5rem] bg-ivory text-brown shadow-[0_-10px_50px_rgba(0,0,0,0.3)] sm:rounded-[2.8rem]">
-          {/* Header & Drag Handle */}
-          <div className="shrink-0 bg-ivory/80 backdrop-blur-md">
-            <div className="flex justify-center pt-3.5 pb-1.5 sm:hidden">
+      <div className={`mx-auto flex h-full max-w-3xl items-end px-0 transition-all duration-500 sm:items-center sm:px-5 ${open ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}>
+        <div className="relative flex max-h-[95svh] w-full flex-col overflow-hidden rounded-t-[2rem] bg-ivory text-brown shadow-[0_-20px_70px_rgba(0,0,0,0.34)] sm:max-h-[92svh] sm:rounded-[2.2rem]">
+          <div className="shrink-0 border-b border-cocoa/10 bg-ivory/92 backdrop-blur-md">
+            <div className="flex justify-center pt-3 pb-1 sm:hidden">
               <div className="h-1.5 w-14 rounded-full bg-brown/15" />
             </div>
-            
-            <div className="flex items-start justify-between gap-4 px-6 pt-3 pb-5 sm:px-9 sm:pt-8 sm:pb-6">
-              <div>
-                <p className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-terracotta sm:text-xs">WhatsApp Order</p>
-                <h2 className="mt-1.5 font-display text-3xl font-semibold leading-tight sm:text-4xl">Review your order</h2>
+
+            <div className="px-5 pt-3 pb-4 sm:px-7 sm:pt-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-[0.65rem] font-black uppercase tracking-[0.22em] text-terracotta">Step {currentStep + 1} of 3</p>
+                  <h2 className="mt-1 font-display text-3xl font-semibold leading-tight text-brown sm:text-4xl">
+                    {steps[currentStep][1]}
+                  </h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-cocoa/62">{steps[currentStep][2]}</p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close order review"
+                  onClick={onClose}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown shadow-sm transition hover:bg-cream active:scale-90 tap-highlight-none"
+                >
+                  <X size={21} />
+                </button>
               </div>
-              <button
-                type="button"
-                aria-label="Close order review"
-                onClick={onClose}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown transition hover:bg-cream active:scale-90 tap-highlight-none shadow-sm"
-              >
-                <X size={22} />
-              </button>
+
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                {steps.map(([label], index) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      if (index === 2 && !validateDetails()) return;
+                      goToStep(index);
+                    }}
+                    className={`group min-w-0 rounded-2xl border px-2.5 py-2.5 text-left transition active:scale-[0.98] tap-highlight-none ${currentStep === index ? 'border-brown bg-brown text-ivory shadow-sm' : 'border-cocoa/10 bg-white text-cocoa/58 hover:bg-cream'}`}
+                  >
+                    <span className={`grid h-6 w-6 place-items-center rounded-full text-[0.72rem] font-black ${currentStep === index ? 'bg-curry text-brown' : 'bg-cream text-cocoa/70'}`}>
+                      {index + 1}
+                    </span>
+                    <span className="mt-2 block truncate text-xs font-black">{label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="modern-scroll grow overflow-y-auto px-6 pb-6 sm:px-9 sm:pb-8">
-            <div className="rounded-[2rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
-              {lines.length ? (
-                <div className="grid gap-3">
-                  {lines.map((item) => (
-                    <div key={item.name} className="grid gap-4 rounded-[1.4rem] bg-cream/50 p-4 min-[480px]:grid-cols-[1fr_auto] min-[480px]:items-center">
-                      <div>
-                        <p className="font-bold leading-tight text-brown sm:text-lg">{item.name}</p>
-                        <p className="mt-1.5 text-xs font-black text-terracotta uppercase tracking-wider">{item.price}</p>
-                      </div>
-                      <QuantityControl
-                        name={item.name}
-                        quantity={item.quantity}
-                        onIncrementItem={onIncrementItem}
-                        onDecrementItem={onDecrementItem}
-                        onSetItemQuantity={onSetItemQuantity}
-                        variant="light"
-                      />
+          <div ref={scrollRef} className="modern-scroll grow overflow-y-auto bg-[#fff8e8] px-5 py-5 sm:px-7 sm:py-6">
+            {currentStep === 0 && (
+              <div className="grid gap-4">
+                <div className="grid gap-3 rounded-[1.6rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:grid-cols-3">
+                  <div className="rounded-[1.1rem] bg-cream/70 p-4">
+                    <p className="text-[0.65rem] font-black uppercase tracking-widest text-cocoa/50">Items</p>
+                    <p className="mt-1 text-2xl font-black text-brown">{orderCount}</p>
+                  </div>
+                  <div className="rounded-[1.1rem] bg-cream/70 p-4">
+                    <p className="text-[0.65rem] font-black uppercase tracking-widest text-cocoa/50">Guide total</p>
+                    <p className="mt-1 text-2xl font-black text-brown">{estimatedSubtotal ? `Rs ${estimatedSubtotal}` : '-'}</p>
+                  </div>
+                  <div className="rounded-[1.1rem] bg-cream/70 p-4">
+                    <p className="text-[0.65rem] font-black uppercase tracking-widest text-cocoa/50">Delivery</p>
+                    <p className="mt-1 text-sm font-black leading-6 text-brown">From Rs 75</p>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                  {lines.length ? (
+                    <div className="grid gap-3">
+                      {lines.map((item) => (
+                        <div key={item.name} className="grid gap-4 rounded-[1.35rem] border border-cocoa/8 bg-cream/45 p-4 min-[520px]:grid-cols-[1fr_auto] min-[520px]:items-center">
+                          <div>
+                            <p className="font-bold leading-tight text-brown sm:text-lg">{item.name}</p>
+                            <p className="mt-1.5 text-xs font-black uppercase tracking-wider text-terracotta">{item.price}</p>
+                          </div>
+                          <QuantityControl
+                            name={item.name}
+                            quantity={item.quantity}
+                            onIncrementItem={onIncrementItem}
+                            onDecrementItem={onDecrementItem}
+                            onSetItemQuantity={onSetItemQuantity}
+                            variant="light"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-[1.35rem] bg-cream/70 px-6 py-10 text-center">
+                      <ShoppingBag className="mx-auto text-terracotta/60" size={34} />
+                      <p className="mt-4 text-sm font-bold leading-7 text-cocoa/70">No dishes selected yet. You can still continue and ask Curry Worry to help from the menu.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid gap-3 text-sm leading-6 text-cocoa/74 sm:grid-cols-3">
+                  {[
+                    ['Final total', 'Confirmed on WhatsApp before cooking.'],
+                    ['Pickup points', 'Vacoas Market, So\'Flo, Phoenix, Curepipe, Trianon, Quatre Bornes, Ebene.'],
+                    ['Payment', `Juice on ${phoneDisplay} or cash.`],
+                  ].map(([title, text]) => (
+                    <div key={title} className="rounded-[1.25rem] border border-cocoa/10 bg-white p-4 shadow-sm">
+                      <CheckCircle2 size={18} className="text-terracotta" />
+                      <p className="mt-3 font-black text-brown">{title}</p>
+                      <p className="mt-1">{text}</p>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="rounded-2xl bg-cream/70 py-10 px-6 text-sm leading-8 text-cocoa/70 text-center font-semibold">
-                  No dishes selected yet. Explore the menu to start your order.
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div className="mt-5 grid gap-3 rounded-[1.6rem] border border-cocoa/10 bg-cream/70 p-4 text-sm leading-6 text-cocoa/76 sm:p-5">
-              <div className="flex gap-3">
-                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-terracotta" />
-                <p><span className="font-black text-brown">Final total confirmed first.</span> Menu prices are guides, especially for family portions and custom quantities.</p>
-              </div>
-              <div className="flex gap-3">
-                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-terracotta" />
-                <p><span className="font-black text-brown">Delivery fee depends on area.</span> Vacoas and nearby delivery are confirmed by location and time before cooking starts.</p>
-              </div>
-              <div className="flex gap-3">
-                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-terracotta" />
-                <p><span className="font-black text-brown">Payment is simple.</span> Pay by Juice on {phoneDisplay}, or pay cash on delivery or pickup.</p>
-              </div>
-            </div>
+            {currentStep === 1 && (
+              <div className="grid gap-4">
+                <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-curry/45 text-brown">
+                      <Phone size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-2xl font-semibold text-brown">Contact</h3>
+                      <p className="text-xs font-semibold text-cocoa/58">Required for the WhatsApp order.</p>
+                    </div>
+                  </div>
+                  <label className="grid gap-2 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
+                    <span>Your name <span className="text-terracotta">*</span></span>
+                    <input
+                      id="order-customer-name"
+                      required
+                      aria-invalid={showRequiredErrors && !details.name.trim()}
+                      value={details.name}
+                      onChange={(event) => setDetails((value) => ({ ...value, name: event.target.value }))}
+                      placeholder="Enter your name"
+                      className="min-h-13 rounded-2xl border border-cocoa/12 bg-ivory px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
+                    />
+                    {showRequiredErrors && !details.name.trim() && (
+                      <span className="text-xs normal-case tracking-normal text-terracotta">Name is required.</span>
+                    )}
+                  </label>
+                </div>
 
-            <div className="mt-8 grid gap-5 sm:grid-cols-2">
-              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
-                Your name
-                <input
-                  value={details.name}
-                  onChange={(event) => setDetails((value) => ({ ...value, name: event.target.value }))}
-                  placeholder="Enter your name"
-                  className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
-                />
-              </label>
-              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
-                Preferred time
-                <input
-                  value={details.time}
-                  onChange={(event) => setDetails((value) => ({ ...value, time: event.target.value }))}
-                  placeholder="e.g. Today 18:00"
-                  className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
-                />
-              </label>
-              <div className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
-                Order type
-                <div className="grid grid-cols-2 gap-2 rounded-2xl bg-cocoa/5 p-1.5">
-                  {[
-                    ['pickup', 'Pickup'],
-                    ['delivery', 'Delivery'],
-                  ].map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setDetails((detailsValue) => ({ ...detailsValue, orderType: value }))}
-                      className={`min-h-12 rounded-xl text-sm font-black transition-all active:scale-95 tap-highlight-none ${details.orderType === value ? 'bg-brown text-ivory shadow-lg' : 'text-cocoa/60 hover:bg-white/50'}`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-leaf/25 text-brown">
+                      <MapPin size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-2xl font-semibold text-brown">Fulfilment</h3>
+                      <p className="text-xs font-semibold text-cocoa/58">Choose how and when you get the food.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4">
+                    <div className="grid gap-2 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
+                      Order type
+                      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-cocoa/5 p-1.5">
+                        {[
+                          ['pickup', 'Pickup'],
+                          ['delivery', 'Delivery'],
+                        ].map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setDetails((detailsValue) => ({ ...detailsValue, orderType: value }))}
+                            className={`min-h-12 rounded-xl text-sm font-black transition-all active:scale-95 tap-highlight-none ${details.orderType === value ? 'bg-brown text-ivory shadow-lg' : 'text-cocoa/60 hover:bg-white/50'}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
+                      Time window
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {timeWindows.map(([value, label, text]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setDetails((detailsValue) => ({ ...detailsValue, timeWindow: value }))}
+                            className={`rounded-2xl border px-4 py-3 text-left transition-all active:scale-95 tap-highlight-none ${details.timeWindow === value ? 'border-brown bg-brown text-ivory shadow-lg' : 'border-cocoa/10 bg-ivory text-cocoa/70 hover:bg-cream'}`}
+                          >
+                            <span className="block text-sm font-black">{label}</span>
+                            <span className={`mt-1 block text-xs font-semibold leading-5 ${details.timeWindow === value ? 'text-ivory/70' : 'text-cocoa/54'}`}>{text}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {needsCustomTime && (
+                      <label className="grid gap-2 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
+                        <span>Custom time (AM/PM) <span className="text-terracotta">*</span></span>
+                        <input
+                          id="order-preferred-time"
+                          type="time"
+                          required
+                          aria-invalid={showRequiredErrors && !details.time.trim()}
+                          value={details.time}
+                          onChange={(event) => setDetails((value) => ({ ...value, time: event.target.value }))}
+                          step="900"
+                          className="min-h-13 rounded-2xl border border-cocoa/12 bg-ivory px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
+                        />
+                        {showRequiredErrors && !details.time.trim() && (
+                          <span className="text-xs normal-case tracking-normal text-terracotta">Custom time is required.</span>
+                        )}
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                {details.orderType === 'delivery' && (
+                  <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                    <div className="mb-4 flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-2xl bg-curry/45 text-brown">
+                        <ShoppingBag size={18} />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-2xl font-semibold text-brown">Delivery place</h3>
+                        <p className="text-xs font-semibold text-cocoa/58">Minimum delivery order: Rs {deliveryMinimum}.</p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {deliveryLocations.map((location) => (
+                        <button
+                          key={location.id}
+                          type="button"
+                          onClick={() => setDetails((detailsValue) => ({ ...detailsValue, deliveryLocation: location.id }))}
+                          className={`rounded-2xl border px-4 py-3 text-left transition-all active:scale-95 tap-highlight-none ${details.deliveryLocation === location.id ? 'border-brown bg-brown text-ivory shadow-lg' : 'border-cocoa/10 bg-ivory text-cocoa/70 hover:bg-cream'}`}
+                        >
+                          <span className="block text-sm font-black">{location.name}</span>
+                          <span className={`mt-1 block text-xs font-semibold leading-5 ${details.deliveryLocation === location.id ? 'text-ivory/70' : 'text-cocoa/54'}`}>
+                            {location.fee === null ? 'From Rs 200, confirm on WhatsApp' : `${location.zone} - Rs ${location.fee}`}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className={`mt-4 rounded-2xl px-4 py-3 text-sm font-semibold leading-6 ${deliveryBelowMinimum ? 'bg-terracotta/12 text-terracotta' : 'bg-cream/70 text-cocoa/70'}`}>
+                      {deliveryBelowMinimum
+                        ? `Delivery minimum is Rs ${deliveryMinimum}. Add more items or choose pickup.`
+                        : `Selected: ${selectedDeliveryLocation.name} - ${selectedDeliveryFeeText}`}
+                    </div>
+                  </div>
+                )}
+
+                {needsDoorArea && (
+                  <label className="grid gap-2 rounded-[1.8rem] border border-cocoa/10 bg-white p-4 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 shadow-sm sm:p-5">
+                    <span>Door delivery area <span className="text-terracotta">*</span></span>
+                    <input
+                      id="order-delivery-area"
+                      required
+                      aria-invalid={showRequiredErrors && !details.area.trim()}
+                      value={details.area}
+                      onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
+                      placeholder="Enter address or nearby landmark"
+                      className="min-h-13 rounded-2xl border border-cocoa/12 bg-ivory px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
+                    />
+                    {showRequiredErrors && !details.area.trim() && (
+                      <span className="text-xs normal-case tracking-normal text-terracotta">Door delivery area is required.</span>
+                    )}
+                  </label>
+                )}
+
+                <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gold/45 text-brown">
+                      <CheckCircle2 size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-2xl font-semibold text-brown">Payment and notes</h3>
+                      <p className="text-xs font-semibold text-cocoa/58">Add anything Curry Worry should know.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4">
+                    <div className="grid gap-2 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
+                      Payment
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {paymentOptions.map(([value, label, text]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setDetails((detailsValue) => ({ ...detailsValue, paymentMethod: value }))}
+                            className={`rounded-2xl border px-4 py-3 text-left transition-all active:scale-95 tap-highlight-none ${details.paymentMethod === value ? 'border-brown bg-brown text-ivory shadow-lg' : 'border-cocoa/10 bg-ivory text-cocoa/70 hover:bg-cream'}`}
+                          >
+                            <span className="block text-sm font-black">{label}</span>
+                            <span className={`mt-1 block text-xs font-semibold leading-5 ${details.paymentMethod === value ? 'text-ivory/70' : 'text-cocoa/54'}`}>{text}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <label className="grid gap-2 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
+                      Notes
+                      <textarea
+                        value={details.note}
+                        onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
+                        placeholder="Portion size, spice level, allergies, tray size, or delivery details..."
+                        rows={3}
+                        className="resize-none rounded-2xl border border-cocoa/12 bg-ivory px-5 py-4 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
-              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
-                Area
-                <input
-                  value={details.area}
-                  onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
-                  placeholder="Vacoas or nearby delivery area"
-                  className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
-                />
-              </label>
-              <div className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 sm:col-span-2">
-                Payment
-                <div className="grid gap-2 rounded-2xl bg-cocoa/5 p-1.5 sm:grid-cols-2">
-                  {paymentOptions.map(([value, label, text]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setDetails((detailsValue) => ({ ...detailsValue, paymentMethod: value }))}
-                      className={`rounded-xl px-4 py-3 text-left transition-all active:scale-95 tap-highlight-none ${details.paymentMethod === value ? 'bg-brown text-ivory shadow-lg' : 'text-cocoa/70 hover:bg-white/50'}`}
-                    >
-                      <span className="block text-sm font-black">{label}</span>
-                      <span className={`mt-1 block text-xs font-semibold leading-5 ${details.paymentMethod === value ? 'text-ivory/70' : 'text-cocoa/54'}`}>{text}</span>
-                    </button>
-                  ))}
+            )}
+
+            {currentStep === 2 && (
+              <div className="grid gap-4">
+                <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-display text-2xl font-semibold text-brown">Order summary</h3>
+                      <p className="mt-1 text-sm font-semibold text-cocoa/60">{orderCount || 'Menu'} item{orderCount === 1 ? '' : 's'} selected</p>
+                    </div>
+                    {estimatedSubtotal > 0 && (
+                      <span className="rounded-full bg-curry/35 px-4 py-2 text-sm font-black text-brown">Guide Rs {estimatedSubtotal}</span>
+                    )}
+                  </div>
+
+                  {lines.length ? (
+                    <div className="mt-4 grid gap-2">
+                      {lines.map((item) => (
+                        <div key={item.name} className="flex items-start justify-between gap-4 rounded-2xl bg-cream/60 p-4">
+                          <div>
+                            <p className="font-bold text-brown">{item.name}</p>
+                            <p className="mt-1 text-xs font-black uppercase tracking-wider text-terracotta">{item.price}</p>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-white px-3 py-1 text-sm font-black text-brown">x{item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-4 rounded-2xl bg-cream/70 px-5 py-6 text-center text-sm font-semibold leading-7 text-cocoa/70">
+                      No dishes selected. The WhatsApp message will ask to order from the menu.
+                    </p>
+                  )}
+                </div>
+
+                <div className="rounded-[1.8rem] border border-cocoa/10 bg-white p-4 shadow-sm sm:p-5">
+                  <h3 className="font-display text-2xl font-semibold text-brown">Final approval</h3>
+                  <div className="mt-4 grid gap-2">
+                    {[
+                      ['Name', details.name.trim()],
+                      ['Type', orderTypeText],
+                      ['Time', timeChoiceText],
+                      ['Place', deliveryPlaceText],
+                      ['Delivery fee', deliveryFeeText],
+                      ['Payment', paymentText],
+                      ['Area note', details.area.trim() || 'No extra area note'],
+                      ['Notes', details.note.trim() || 'No special note'],
+                    ].map(([label, value]) => (
+                      <div key={label} className="grid gap-1 rounded-2xl bg-cream/55 px-4 py-3 sm:grid-cols-[8rem_1fr] sm:gap-4">
+                        <span className="text-[0.65rem] font-black uppercase tracking-widest text-cocoa/50">{label}</span>
+                        <span className="font-semibold leading-6 text-brown">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-terracotta/20 bg-terracotta/10 p-4 text-sm font-semibold leading-6 text-cocoa/76">
+                  <span className="font-black text-brown">Before cooking:</span> availability, portion size, delivery details, and final total are confirmed on WhatsApp.
                 </div>
               </div>
-              <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 sm:col-span-2">
-                Notes
-                <textarea
-                  value={details.note}
-                  onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
-                  placeholder="Portion size, spice level, allergies, tray size, or delivery details..."
-                  rows={3}
-                  className="resize-none rounded-2xl border border-cocoa/12 bg-white px-6 py-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
-                />
-              </label>
-            </div>
+            )}
           </div>
 
-          {/* Sticky Footer Actions */}
-          <div className="shrink-0 border-t border-cocoa/10 bg-ivory/80 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:px-9 sm:pb-10 sm:pt-6">
-            <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:gap-4">
-              <p className="text-[10px] font-semibold leading-tight text-cocoa/60 sm:col-span-2 sm:text-xs sm:leading-5">
-                Sending this message does not lock the price. Curry Worry will confirm availability, portion size, delivery coverage, delivery fee if needed, payment method, and final total on WhatsApp before preparation.
+          <div className="shrink-0 border-t border-cocoa/10 bg-ivory/94 px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:px-7 sm:pb-5">
+            <div className="grid gap-2.5 sm:flex sm:items-center sm:justify-between">
+              <p className="text-[10px] font-semibold leading-snug text-cocoa/54">
+                {currentStep === 2 ? 'Final total is confirmed on WhatsApp.' : 'Quick checkout, final price confirmed before preparation.'}
               </p>
-              <div className="grid grid-cols-2 gap-3 sm:contents">
-                {orderCount > 0 && (
+
+              <div className="grid grid-cols-2 gap-2.5 sm:flex sm:justify-end sm:gap-3">
+                {currentStep === 0 && orderCount > 0 && (
                   <button
                     type="button"
                     onClick={onClearOrder}
-                    className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-4 py-4 text-xs font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none sm:min-h-15 sm:gap-3 sm:px-10 sm:py-5 sm:text-sm"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-cocoa/12 bg-white px-4 py-2.5 text-xs font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none sm:min-h-12 sm:px-5"
                   >
-                    <Trash2 size={20} className="sm:size-[22px]" />
+                    <Trash2 size={17} />
                     <span>Clear</span>
                   </button>
                 )}
-                <a
-                  href={whatsappOrderHref}
-                  className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-4 py-4 text-base font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-[0_12px_40px_rgba(255,179,209,0.3)] sm:min-h-15 sm:gap-3.5 sm:px-10 sm:py-5 sm:text-lg"
-                >
-                  <WhatsAppIcon size={22} className="shrink-0 transition group-hover:rotate-6 sm:size-6" />
-                  <span>Order</span>
-                </a>
+
+                {currentStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => goToStep(currentStep - 1)}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-cocoa/12 bg-white px-4 py-2.5 text-xs font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none sm:min-h-12 sm:px-5"
+                  >
+                    <ChevronLeft size={17} />
+                    <span>Back</span>
+                  </button>
+                )}
+
+                {currentStep === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => goToStep(1)}
+                    className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-curry px-5 py-2.5 text-sm font-black text-brown shadow-[0_10px_30px_rgba(255,179,209,0.24)] transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none sm:min-h-12 sm:px-7"
+                  >
+                    <span>Continue</span>
+                    <ChevronRight size={18} className="shrink-0" />
+                  </button>
+                )}
+
+                {currentStep === 1 && (
+                  <button
+                    type="button"
+                    onClick={handleDetailsNext}
+                    className={`group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-curry px-5 py-2.5 text-sm font-black text-brown shadow-[0_10px_30px_rgba(255,179,209,0.24)] transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none sm:min-h-12 sm:px-7 ${hasRequiredDetails ? '' : 'opacity-70'}`}
+                  >
+                    <span>Final check</span>
+                    <ChevronRight size={18} className="shrink-0" />
+                  </button>
+                )}
+
+                {currentStep === 2 && (
+                  <a
+                    href={whatsappOrderHref}
+                    onClick={handleOrderClick}
+                    aria-disabled={!hasRequiredDetails}
+                    className={`group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-curry px-5 py-2.5 text-sm font-black text-brown shadow-[0_10px_30px_rgba(255,179,209,0.24)] transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none sm:min-h-12 sm:px-7 ${hasRequiredDetails ? '' : 'opacity-70'}`}
+                  >
+                    <WhatsAppIcon size={18} className="shrink-0 transition group-hover:rotate-6" />
+                    <span>Send WhatsApp</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -1292,7 +1718,7 @@ function Footer() {
             </div>
           </div>
           <p className="mt-6 max-w-sm text-sm leading-8 text-ivory/60">
-            Freshly prepared Mauritian comfort food for order, takeaway, and local delivery. Warm, generous, and made to taste like home.
+            Freshly prepared Mauritian comfort food for order, takeaway, and pickup-point delivery from Rs 75. Warm, generous, and made to taste like home.
           </p>
         </div>
         <div>
