@@ -501,7 +501,7 @@ function SectionHeader({ eyebrow, title, text, align = 'center', light = false }
       <h2 className={`font-display text-[2rem] font-semibold leading-[1.06] sm:text-5xl ${light ? 'text-ivory' : 'text-brown'}`}>
         {title}
       </h2>
-      {text && <p className={`mt-4 text-[0.95rem] leading-7 sm:mt-5 sm:text-lg sm:leading-8 ${light ? 'text-ivory/72' : 'text-cocoa/76'}`}>{text}</p>}
+      {text && <p className={`mt-4 text-sm leading-7 sm:mt-5 sm:text-lg sm:leading-8 ${light ? 'text-ivory/72' : 'text-cocoa/76'}`}>{text}</p>}
     </div>
   );
 }
@@ -535,11 +535,10 @@ function Hero({ onOpenOrder }) {
             batches. Warm, generous, and made to taste like home.
           </p>
           <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-row sm:gap-4">
-            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-4 text-base font-black leading-none text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:w-auto sm:px-9">
+            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-13 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-3.5 text-sm font-black leading-none text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:min-h-14 sm:w-auto sm:px-9 sm:py-4 sm:text-base">
               <WhatsAppIcon size={20} className="shrink-0 transition group-hover:rotate-6" />
               <span>WhatsApp Order</span>
-            </button>
-            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
+            </button>            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
               <Phone size={18} className="shrink-0" />
               <span>Call {phoneDisplay}</span>
             </a>
@@ -760,7 +759,7 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
           <button
             type="button"
             onClick={onOpenOrder}
-            className="inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:w-auto"
+            className="inline-flex min-h-13 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-3.5 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:min-h-14 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
           >
             <ShoppingBag size={20} /> {orderCount ? 'Review Order' : 'Start Order'}
           </button>
@@ -859,7 +858,7 @@ function GallerySection() {
             <button
               type="button"
               onClick={() => setVisibleCount(prev => prev + 15)}
-              className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-10 py-4 text-sm font-black text-brown transition hover:bg-cream active:scale-95 tap-highlight-none shadow-sm"
+              className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-6 py-3.5 text-xs font-black text-brown transition hover:bg-cream active:scale-95 tap-highlight-none shadow-sm sm:min-h-14 sm:px-10 sm:py-4 sm:text-sm"
             >
               View More Photos
             </button>
@@ -959,10 +958,10 @@ function OrderSteps({ onOpenOrder }) {
             <p className="font-display text-4xl font-semibold">Ready to order?</p>
             <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability, portion size, Vacoas or nearby delivery coverage, delivery fee, payment method, and final total are confirmed manually before cooking starts.</p>
             <div className="mt-8 grid gap-4">
-              <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10">
+              <button type="button" onClick={onOpenOrder} className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-3.5 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:min-h-14 sm:px-8 sm:py-4 sm:text-base">
                 <WhatsAppIcon size={20} /> WhatsApp Order
               </button>
-              <a href={phoneHref} className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-8 py-4 text-center font-bold text-ivory transition hover:bg-white/16 active:scale-95 tap-highlight-none">
+              <a href={phoneHref} className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-6 py-3.5 text-center text-sm font-bold text-ivory transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:min-h-14 sm:px-8 sm:py-4 sm:text-base">
                 <Phone size={19} className="shrink-0" /> Call {phoneDisplay}
               </a>
             </div>
@@ -1037,8 +1036,8 @@ function CTASection({ onOpenOrder }) {
             Whether it is farata for lunch, breakfast for the family, or sweets for the weekend, we will prepare it with care.
           </p>
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-15 w-full items-center justify-center gap-3 rounded-full bg-curry px-10 py-5 text-lg font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-xl shadow-curry/15 sm:w-auto">
-              <WhatsAppIcon size={22} className="transition group-hover:rotate-6" /> <span>Order Now</span>
+            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-xl shadow-curry/15 sm:min-h-15 sm:w-auto sm:gap-3 sm:px-10 sm:py-5 sm:text-lg">
+              <WhatsAppIcon size={20} className="shrink-0 transition group-hover:rotate-6 sm:size-[22px]" /> <span>Order Now</span>
             </button>
           </div>
         </div>
@@ -1213,28 +1212,30 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
           </div>
 
           {/* Sticky Footer Actions */}
-          <div className="shrink-0 border-t border-cocoa/10 bg-ivory/80 px-6 pt-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:px-9 sm:pb-10 sm:pt-6">
-            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-              <p className="text-xs font-semibold leading-5 text-cocoa/60 sm:col-span-2">
+          <div className="shrink-0 border-t border-cocoa/10 bg-ivory/80 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:px-9 sm:pb-10 sm:pt-6">
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:gap-4">
+              <p className="text-[10px] font-semibold leading-tight text-cocoa/60 sm:col-span-2 sm:text-xs sm:leading-5">
                 Sending this message does not lock the price. Curry Worry will confirm availability, portion size, delivery coverage, delivery fee if needed, payment method, and final total on WhatsApp before preparation.
               </p>
-              <a
-                href={whatsappOrderHref}
-                className="group inline-flex min-h-15 items-center justify-center gap-3.5 rounded-full bg-curry px-10 py-5 text-lg font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-[0_12px_40px_rgba(255,179,209,0.3)]"
-              >
-                <WhatsAppIcon size={24} className="transition group-hover:rotate-6" />
-                <span>Send WhatsApp Order</span>
-              </a>
-              {orderCount > 0 && (
-                <button
-                  type="button"
-                  onClick={onClearOrder}
-                  className="inline-flex min-h-15 items-center justify-center gap-3 rounded-full border border-cocoa/12 bg-white px-10 py-5 text-sm font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none"
+              <div className="grid grid-cols-2 gap-3 sm:contents">
+                {orderCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={onClearOrder}
+                    className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-4 py-4 text-xs font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none sm:min-h-15 sm:gap-3 sm:px-10 sm:py-5 sm:text-sm"
+                  >
+                    <Trash2 size={20} className="sm:size-[22px]" />
+                    <span>Clear</span>
+                  </button>
+                )}
+                <a
+                  href={whatsappOrderHref}
+                  className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-4 py-4 text-base font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-[0_12px_40px_rgba(255,179,209,0.3)] sm:min-h-15 sm:gap-3.5 sm:px-10 sm:py-5 sm:text-lg"
                 >
-                  <Trash2 size={22} />
-                  <span>Clear</span>
-                </button>
-              )}
+                  <WhatsAppIcon size={22} className="shrink-0 transition group-hover:rotate-6 sm:size-6" />
+                  <span>Order</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -1259,7 +1260,7 @@ function MobileOrderBar({ orderCount, onOpenOrder, isBumping }) {
           className={`relative inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full bg-curry px-2 text-xs font-black text-brown transition active:scale-[0.97] tap-highlight-none shadow-md shadow-curry/20 ${isBumping ? 'animate-cart-pulse' : ''}`}
         >
           {isBumping && (
-            <span className="absolute -top-1 left-1/2 -translate-x-1/2 animate-float-up text-lg font-black text-terracotta">
+            <span className="absolute -top-1 left-1/2 animate-float-up text-lg font-black text-terracotta">
               +1
             </span>
           )}
