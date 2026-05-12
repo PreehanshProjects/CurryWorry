@@ -216,22 +216,22 @@ function buildWhatsAppMessage(orderItems, details) {
 
 function QuantityControl({ name, quantity, onIncrementItem, onDecrementItem, onSetItemQuantity, variant = 'dark' }) {
   const inputClass = variant === 'light'
-    ? 'h-8 w-12 rounded-full border-0 bg-transparent text-center text-sm font-black text-brown outline-none transition focus:bg-cream'
-    : 'h-8 w-12 rounded-full border-0 bg-transparent text-center text-sm font-black text-curry outline-none transition focus:bg-white/12';
+    ? 'h-10 w-12 rounded-full border-0 bg-transparent text-center text-sm font-black text-brown outline-none transition focus:bg-cream'
+    : 'h-10 w-12 rounded-full border-0 bg-transparent text-center text-sm font-black text-curry outline-none transition focus:bg-white/12';
   const decrementClass = variant === 'light'
-    ? 'grid h-8 w-8 place-items-center rounded-full text-brown transition hover:bg-cream'
-    : 'grid h-8 w-8 place-items-center rounded-full text-ivory transition hover:bg-white/12';
-  const incrementClass = 'grid h-8 w-8 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc]';
+    ? 'grid h-10 w-10 place-items-center rounded-full text-brown transition hover:bg-cream active:scale-90 tap-highlight-none'
+    : 'grid h-10 w-10 place-items-center rounded-full text-ivory transition hover:bg-white/12 active:scale-90 tap-highlight-none';
+  const incrementClass = 'grid h-10 w-10 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc] active:scale-90 tap-highlight-none';
 
   return (
-    <div className={`flex w-fit items-center rounded-full p-1 ${variant === 'light' ? 'border border-cocoa/10 bg-white' : 'border border-white/12 bg-white/[0.08]'}`}>
+    <div className={`flex w-fit items-center rounded-full p-1.5 ${variant === 'light' ? 'border border-cocoa/10 bg-white shadow-sm' : 'border border-white/12 bg-white/[0.08]'}`}>
       <button
         type="button"
         aria-label={`Remove one ${name}`}
         onClick={() => onDecrementItem(name)}
         className={decrementClass}
       >
-        <Minus size={15} />
+        <Minus size={16} />
       </button>
       <input
         type="number"
@@ -249,7 +249,7 @@ function QuantityControl({ name, quantity, onIncrementItem, onDecrementItem, onS
         onClick={() => onIncrementItem(name)}
         className={incrementClass}
       >
-        <Plus size={15} />
+        <Plus size={16} />
       </button>
     </div>
   );
@@ -310,22 +310,22 @@ function Navbar({ onOpenOrder }) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.2rem] border border-white/18 bg-[#3a3a3a]/92 px-3 py-2 text-ivory shadow-[0_18px_60px_rgba(58,58,58,0.2)] backdrop-blur-xl sm:rounded-full sm:px-5 sm:py-2.5">
-        <a href="#home" className="flex items-center gap-3">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.4rem] border border-white/18 bg-[#3a3a3a]/92 px-3 py-2 text-ivory shadow-[0_18px_60px_rgba(58,58,58,0.25)] backdrop-blur-2xl sm:rounded-full sm:px-5 sm:py-2.5">
+        <a href="#home" className="flex items-center gap-3 transition active:scale-95 tap-highlight-none">
           <img
             src={logoSrc}
             alt="Curry Worry logo"
-            className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-curry/70 shadow-[0_10px_30px_rgba(255,179,209,0.3)] sm:h-14 sm:w-14"
+            className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-curry/70 shadow-[0_10px_30px_rgba(255,179,209,0.3)] sm:h-14 sm:w-14"
           />
           <span className="min-w-0">
             <span className="block font-display text-lg font-semibold leading-none">Curry Worry</span>
-            <span className="block truncate text-xs text-ivory/65 max-[380px]:hidden">Homemade Moris Food</span>
+            <span className="block truncate text-[0.65rem] text-ivory/60 max-[380px]:hidden">Homemade Moris Food</span>
           </span>
         </a>
 
-        <div className="hidden items-center gap-7 lg:flex">
+        <div className="hidden items-center gap-8 lg:flex">
           {navItems.map(([label, href]) => (
-            <a key={label} href={href} className="text-sm font-semibold text-ivory/76 transition hover:text-curry">
+            <a key={label} href={href} className="text-sm font-semibold text-ivory/70 transition hover:text-curry active:scale-95">
               {label}
             </a>
           ))}
@@ -334,7 +334,7 @@ function Navbar({ onOpenOrder }) {
         <button
           type="button"
           onClick={onOpenOrder}
-          className="hidden items-center gap-2 rounded-full bg-curry px-5 py-3 text-sm font-black text-brown transition hover:-translate-y-0.5 hover:bg-[#ffc4dc] lg:inline-flex"
+          className="hidden items-center gap-2 rounded-full bg-curry px-6 py-3 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none lg:inline-flex"
         >
           <WhatsAppIcon size={17} /> WhatsApp
         </button>
@@ -342,21 +342,21 @@ function Navbar({ onOpenOrder }) {
         <button
           aria-label="Toggle navigation"
           onClick={() => setOpen((value) => !value)}
-          className="grid h-11 w-11 place-items-center rounded-full border border-white/14 text-ivory lg:hidden"
+          className="grid h-11 w-11 place-items-center rounded-full border border-white/14 text-ivory transition active:scale-90 tap-highlight-none lg:hidden"
         >
-          {open ? <X size={20} /> : <Menu size={20} />}
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </nav>
 
       {open && (
-        <div className="mx-auto mt-3 max-w-7xl rounded-3xl border border-brown/10 bg-ivory p-3 shadow-2xl lg:hidden">
-          <div className="grid gap-2">
+        <div className="mx-auto mt-3 max-w-7xl overflow-hidden rounded-[2rem] border border-brown/10 bg-ivory p-2 shadow-2xl lg:hidden">
+          <div className="grid gap-1">
             {navItems.map(([label, href]) => (
               <a
                 key={label}
                 href={href}
                 onClick={() => setOpen(false)}
-                className="rounded-2xl px-4 py-3.5 font-semibold text-brown hover:bg-cream"
+                className="rounded-2xl px-5 py-4 font-semibold text-brown transition hover:bg-cream active:scale-[0.98] tap-highlight-none"
               >
                 {label}
               </a>
@@ -367,11 +367,9 @@ function Navbar({ onOpenOrder }) {
                 setOpen(false);
                 onOpenOrder();
               }}
-              className="rounded-2xl bg-terracotta px-4 py-3.5 text-center font-black text-ivory"
+              className="mt-1 flex items-center justify-center gap-2.5 rounded-2xl bg-terracotta px-5 py-4 font-black text-ivory transition active:scale-[0.98] tap-highlight-none"
             >
-              <span className="inline-flex items-center justify-center gap-2">
-                <WhatsAppIcon size={18} /> WhatsApp Order
-              </span>
+              <WhatsAppIcon size={20} /> WhatsApp Order
             </button>
           </div>
         </div>
@@ -400,45 +398,46 @@ function Hero({ onOpenOrder }) {
       <img
         src="https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=1800&q=88"
         alt="Homemade Mauritian food with warm curries, breads, and chutneys"
+        loading="lazy"
         className="absolute inset-0 h-full w-full object-cover opacity-60"
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(58,58,58,0.98)_0%,rgba(58,58,58,0.88)_42%,rgba(58,58,58,0.58)_100%)] sm:bg-[linear-gradient(90deg,rgba(58,58,58,0.96),rgba(58,58,58,0.72)_48%,rgba(58,58,58,0.24))]" />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-cream to-transparent" />
 
-      <div className="relative mx-auto flex max-w-7xl items-center px-4 pb-12 pt-28 sm:min-h-[100svh] sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+      <div className="relative mx-auto flex max-w-7xl items-center px-5 pb-14 pt-32 sm:min-h-[100svh] sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
         <div data-reveal className="w-full max-w-3xl">
-          <div className="mb-4 inline-flex max-w-full items-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-3.5 py-2 text-xs text-ivory/84 backdrop-blur sm:mb-5 sm:gap-3 sm:px-4 sm:text-sm">
+          <div className="mb-5 inline-flex max-w-full items-center gap-3 rounded-full border border-white/16 bg-white/10 px-4 py-2.5 text-xs text-ivory/84 backdrop-blur-md sm:mb-6 sm:px-5 sm:text-sm">
             <Leaf size={16} className="text-leaf" />
-            <span className="leading-5">Homemade on order, pickup and local delivery</span>
+            <span className="leading-tight">Homemade on order, pickup and local delivery</span>
           </div>
-          <h1 className="font-display text-[clamp(2.65rem,16vw,5.8rem)] font-semibold leading-[0.98] text-ivory lg:text-8xl">
+          <h1 className="font-display text-[clamp(2.8rem,16vw,6rem)] font-semibold leading-[0.96] text-ivory lg:text-8xl">
             Curry Worry
           </h1>
-          <p className="mt-3 max-w-[18ch] font-display text-[clamp(1.55rem,8vw,3.35rem)] font-semibold leading-[1.04] text-curry sm:mt-4 sm:max-w-none sm:leading-tight">
+          <p className="mt-4 max-w-[18ch] font-display text-[clamp(1.65rem,8vw,3.5rem)] font-semibold leading-[1.02] text-curry sm:mt-5 sm:max-w-none sm:leading-tight">
             Manze lakaz Moris, ready by preorder.
           </p>
-          <p className="mt-5 max-w-2xl text-[0.95rem] leading-7 text-ivory/78 sm:mt-7 sm:text-xl sm:leading-8">
+          <p className="mt-6 max-w-2xl text-[0.95rem] leading-8 text-ivory/78 sm:mt-8 sm:text-xl sm:leading-9">
             Farata, rougaille, touffe, sweets, breakfast, and family-style Mauritian comfort food cooked fresh in small
             batches. Warm, generous, and made to taste like home.
           </p>
-          <div className="mt-6 grid gap-2.5 sm:mt-8 sm:flex sm:flex-row sm:gap-3">
-            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-4 py-3 text-sm font-black leading-none text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:min-h-14 sm:w-auto sm:px-7 sm:py-4 sm:text-base">
-              <WhatsAppIcon size={18} className="shrink-0 transition group-hover:rotate-6" />
+          <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-row sm:gap-4">
+            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-4 text-base font-black leading-none text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:w-auto sm:px-9">
+              <WhatsAppIcon size={20} className="shrink-0 transition group-hover:rotate-6" />
               <span>WhatsApp Order</span>
             </button>
-            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-7 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:inline-flex">
-              <Phone size={16} className="shrink-0" />
+            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
+              <Phone size={18} className="shrink-0" />
               <span>Call {phoneDisplay}</span>
             </a>
-            <a href="#menu" className="hidden min-h-14 w-auto items-center justify-center gap-2 rounded-full border border-white/18 bg-white/10 px-7 py-4 font-bold text-ivory backdrop-blur transition hover:-translate-y-1 hover:bg-white/16 sm:inline-flex">
+            <a href="#menu" className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
               <span>View Menu</span>
-              <ArrowRight size={17} className="shrink-0" />
+              <ArrowRight size={18} className="shrink-0" />
             </a>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-2 sm:hidden">
+          <div className="mt-6 grid grid-cols-3 gap-2.5 sm:hidden">
             {quickOrderItems.map((item) => (
-              <a key={item} href="#menu" className="rounded-full border border-white/16 bg-white/10 px-2.5 py-2 text-center text-[0.72rem] font-bold leading-none text-ivory/86 backdrop-blur">
+              <a key={item} href="#menu" className="rounded-2xl border border-white/16 bg-white/8 px-2 py-3 text-center text-[0.72rem] font-black uppercase tracking-wider text-ivory/80 backdrop-blur-md transition active:scale-95 tap-highlight-none">
                 {item}
               </a>
             ))}
@@ -480,21 +479,21 @@ function FoodCard({ dish }) {
   return (
     <article
       data-reveal
-      className="group overflow-hidden rounded-[1.15rem] border border-cocoa/10 bg-ivory shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-warm"
+      className="group overflow-hidden rounded-[1.6rem] border border-cocoa/10 bg-ivory shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-warm"
     >
       <div className="relative overflow-hidden">
-        <img src={dish.image} alt={dish.name} className="h-56 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-72" />
-        <span className="absolute left-4 top-4 rounded-full bg-curry px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-brown">
+        <img src={dish.image} alt={dish.name} loading="lazy" className="h-64 w-full object-cover transition duration-700 group-hover:scale-105 sm:h-80" />
+        <span className="absolute left-5 top-5 rounded-full bg-curry px-4 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.15em] text-brown shadow-lg">
           {dish.badge}
         </span>
       </div>
-      <div className="p-6">
-        <div className="grid gap-3 sm:flex sm:items-start sm:justify-between sm:gap-4">
-          <h3 className="font-display text-2xl font-semibold text-brown">{dish.name}</h3>
-          <span className="w-fit rounded-full bg-leaf/12 px-3 py-1 text-xs font-black text-leaf">{dish.spice}</span>
+      <div className="p-7 sm:p-8">
+        <div className="grid gap-4 sm:flex sm:items-start sm:justify-between sm:gap-6">
+          <h3 className="font-display text-2xl font-semibold text-brown sm:text-3xl">{dish.name}</h3>
+          <span className="w-fit shrink-0 rounded-full bg-leaf/15 px-3.5 py-1.5 text-[0.65rem] font-black uppercase tracking-wider text-leaf">{dish.spice}</span>
         </div>
-        <p className="mt-3 text-sm font-black text-terracotta">{dish.price}</p>
-        <p className="mt-4 text-sm leading-7 text-cocoa/74">{dish.description}</p>
+        <p className="mt-4 text-sm font-black text-terracotta sm:text-base">{dish.price}</p>
+        <p className="mt-5 text-sm leading-8 text-cocoa/74 sm:text-base">{dish.description}</p>
       </div>
     </article>
   );
@@ -574,9 +573,9 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
                         <button
                           type="button"
                           onClick={() => onAddItem({ name: item, price: guide, detail, category: section.title })}
-                          className="inline-flex min-h-10 w-fit items-center justify-center gap-1.5 rounded-full border border-curry/22 bg-curry/12 px-4 py-2 text-xs font-black text-curry transition hover:-translate-y-0.5 hover:bg-curry hover:text-brown"
+                          className="inline-flex min-h-11 w-fit items-center justify-center gap-2 rounded-full border border-curry/25 bg-curry/12 px-5 py-2.5 text-xs font-black text-curry transition hover:bg-curry hover:text-brown active:scale-95 tap-highlight-none"
                         >
-                          <Plus size={15} /> Add
+                          <Plus size={16} /> Add
                         </button>
                       )}
                     </div>
@@ -586,14 +585,14 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
             </article>
           ))}
         </div>
-        <div data-reveal className="mt-6 flex flex-col items-center justify-between gap-4 rounded-[1.1rem] border border-curry/20 bg-curry/12 p-4 text-sm font-semibold leading-6 text-ivory/78 sm:flex-row sm:p-5">
-          <span>{orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'} selected. Review your order before sending it on WhatsApp.` : 'Ready to order? Add dishes from the menu, then send a prepared WhatsApp order.'}</span>
+        <div data-reveal className="mt-8 flex flex-col items-center justify-between gap-5 rounded-[1.6rem] border border-curry/20 bg-curry/12 p-5 text-sm font-semibold leading-7 text-ivory/80 sm:flex-row sm:p-7">
+          <span className="max-w-md">{orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'} selected. Review your order before sending it on WhatsApp.` : 'Ready to order? Add dishes from the menu, then send a prepared WhatsApp order.'}</span>
           <button
             type="button"
             onClick={onOpenOrder}
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-curry px-5 py-3 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto"
+            className="inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:w-auto"
           >
-            <ShoppingBag size={18} /> {orderCount ? 'Review Order' : 'Start Order'}
+            <ShoppingBag size={20} /> {orderCount ? 'Review Order' : 'Start Order'}
           </button>
         </div>
       </div>
@@ -612,22 +611,23 @@ function BreakfastSection() {
             title="Soft mornings, warm pancakes, easy comfort."
             text="Breakfast is made for relaxed island mornings: pancakes, muffins, omelettes, smoothies, and milkshakes that feel simple, fresh, and homemade."
           />
-          <div data-reveal className="mt-8 overflow-hidden rounded-[1.2rem] shadow-warm">
+          <div data-reveal className="mt-10 overflow-hidden rounded-[2rem] shadow-warm">
             <img
               src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=1000&q=85"
               alt="Homemade pancakes and breakfast table"
-              className="h-64 w-full object-cover sm:h-[420px]"
+              loading="lazy"
+              className="h-72 w-full object-cover sm:h-[480px]"
             />
           </div>
         </div>
-        <div className="grid content-center gap-4 sm:gap-5">
+        <div className="grid content-center gap-5 sm:gap-6">
           {breakfastGroups.map((group) => (
-            <div data-reveal key={group.title} className="rounded-[1.1rem] border border-cocoa/10 bg-ivory p-5 shadow-soft sm:p-6">
-              <h3 className="font-display text-3xl font-semibold text-brown">{group.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-cocoa/65">{group.note}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
+            <div data-reveal key={group.title} className="rounded-[1.6rem] border border-cocoa/10 bg-ivory p-6 shadow-soft sm:p-8">
+              <h3 className="font-display text-3xl font-semibold text-brown sm:text-4xl">{group.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-cocoa/65 sm:text-base">{group.note}</p>
+              <div className="mt-6 flex flex-wrap gap-2.5">
                 {group.items.map((item) => (
-                  <span key={item} className="rounded-full bg-curry/16 px-4 py-2 text-sm font-bold text-cocoa">
+                  <span key={item} className="rounded-full bg-curry/15 px-5 py-2.5 text-sm font-bold text-cocoa">
                     {item}
                   </span>
                 ))}
@@ -649,15 +649,15 @@ function DessertGrid() {
           title="Sweet things that taste like celebration."
           text="Traditional treats for tea time, family visits, holidays, or the small moment after a good meal."
         />
-        <div className="mt-9 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
           {desserts.map((item) => (
-            <article data-reveal key={item.name} className="group overflow-hidden rounded-[1.1rem] bg-cream shadow-soft transition hover:-translate-y-1 hover:shadow-warm">
+            <article data-reveal key={item.name} className="group overflow-hidden rounded-[1.6rem] bg-cream shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-warm">
               <div className="overflow-hidden">
-                <img src={item.image} alt={item.name} className="h-48 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-52" />
+                <img src={item.image} alt={item.name} loading="lazy" className="h-56 w-full object-cover transition duration-700 group-hover:scale-105 sm:h-64" />
               </div>
-              <div className="p-5 sm:p-6">
-                <h3 className="font-display text-2xl font-semibold text-brown">{item.name}</h3>
-                <p className="mt-3 text-sm leading-7 text-cocoa/72">{item.text}</p>
+              <div className="p-6 sm:p-8">
+                <h3 className="font-display text-2xl font-semibold text-brown sm:text-3xl">{item.name}</h3>
+                <p className="mt-4 text-sm leading-8 text-cocoa/72 sm:text-base">{item.text}</p>
               </div>
             </article>
           ))}
@@ -675,11 +675,12 @@ function StorySection() {
           <img
             src="/assets/farata-rougaille-touni.png"
             alt="Fresh homemade farata with rougaille touni"
-            className="aspect-[4/3] w-full rounded-[1.2rem] object-cover shadow-warm sm:aspect-[4/5]"
+            loading="lazy"
+            className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-warm sm:aspect-[4/5]"
           />
-          <div className="mt-4 max-w-xs rounded-3xl bg-ivory p-5 shadow-xl sm:absolute sm:-bottom-6 sm:left-6 sm:mt-0">
+          <div className="mt-6 max-w-xs rounded-[2rem] bg-ivory p-6 shadow-2xl sm:absolute sm:-bottom-8 sm:left-8 sm:mt-0">
             <p className="font-display text-3xl font-semibold text-brown">Cooked on order</p>
-            <p className="mt-1 text-sm leading-6 text-cocoa/72">Small batches, fresh ingredients, and no rushed shortcuts.</p>
+            <p className="mt-2 text-sm leading-7 text-cocoa/72">Small batches, fresh ingredients, and no rushed shortcuts.</p>
           </div>
         </div>
         <div>
@@ -689,14 +690,14 @@ function StorySection() {
             title="Food that comes from a real kitchen, not a production line."
             text="This is homemade Mauritian cooking for people who miss the comfort of manze lakaz. Spices are handled patiently, vegetables are prepared fresh, and each order is packed with the care you expect from family cooking."
           />
-          <div data-reveal className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div data-reveal className="mt-10 grid gap-5 sm:grid-cols-2">
             {[
               ['Freshly prepared', 'Orders are planned and cooked in small batches so the food reaches you warm and full of flavour.'],
               ['Traditional recipes', 'Rougaille, touffe, masala, satini, and sweets made with the kind of taste Mauritians recognize.'],
             ].map(([title, text]) => (
-              <div key={title} className="rounded-3xl border border-cocoa/10 bg-ivory p-6 shadow-soft">
+              <div key={title} className="rounded-[1.8rem] border border-cocoa/10 bg-ivory p-7 shadow-soft">
                 <h3 className="font-display text-2xl font-semibold text-brown">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-cocoa/72">{text}</p>
+                <p className="mt-4 text-sm leading-8 text-cocoa/72">{text}</p>
               </div>
             ))}
           </div>
@@ -715,35 +716,35 @@ function OrderSteps({ onOpenOrder }) {
           title="Simple manual ordering, no app account needed."
           text="Order through WhatsApp or phone, then confirm portions, timing, pickup, or nearby delivery directly."
         />
-        <div className="mt-9 grid gap-4 sm:mt-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-6">
-          <div data-reveal className="rounded-[1.6rem] bg-brown p-5 text-ivory shadow-warm sm:rounded-[2rem] sm:p-7">
-            <p className="font-display text-3xl font-semibold">Ready to order?</p>
-            <p className="mt-3 text-sm leading-7 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability and portions can be confirmed manually.</p>
-            <div className="mt-6 grid gap-3">
-              <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc]">
-                <WhatsAppIcon size={18} /> WhatsApp Order
+        <div className="mt-10 grid gap-5 sm:mt-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
+          <div data-reveal className="rounded-[2rem] bg-brown p-7 text-ivory shadow-warm sm:p-10">
+            <p className="font-display text-4xl font-semibold">Ready to order?</p>
+            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability and portions can be confirmed manually.</p>
+            <div className="mt-8 grid gap-4">
+              <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10">
+                <WhatsAppIcon size={20} /> WhatsApp Order
               </button>
-              <a href={phoneHref} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/16 bg-white/10 px-6 py-4 text-center font-bold text-ivory transition hover:-translate-y-1 hover:bg-white/16">
-                <Phone size={17} className="shrink-0" /> Call {phoneDisplay}
+              <a href={phoneHref} className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-8 py-4 text-center font-bold text-ivory transition hover:bg-white/16 active:scale-95 tap-highlight-none">
+                <Phone size={19} className="shrink-0" /> Call {phoneDisplay}
               </a>
             </div>
-            <div className="mt-6 grid gap-3 text-sm text-ivory/70">
+            <div className="mt-8 grid gap-4 text-sm text-ivory/70">
               {orderFacts.map(([label, value]) => (
-                <div key={label} className="flex flex-col gap-1 border-t border-white/10 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                  <span className="font-bold text-ivory">{label}</span>
-                  <span className="sm:text-right">{value}</span>
+                <div key={label} className="flex flex-col gap-1 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  <span className="font-black uppercase tracking-wider text-curry/80 text-[0.65rem]">{label}</span>
+                  <span className="sm:text-right font-semibold text-ivory">{value}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
           {orderSteps.map(([title, text], index) => (
-            <div data-reveal key={title} className="rounded-[1.1rem] border border-cocoa/10 bg-cream p-5 shadow-soft sm:p-6">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-terracotta text-lg font-black text-ivory">
+            <div data-reveal key={title} className="rounded-[1.6rem] border border-cocoa/10 bg-cream p-7 shadow-soft sm:p-8">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-terracotta text-xl font-black text-ivory shadow-lg shadow-terracotta/20">
                 {index + 1}
               </span>
-              <h3 className="mt-6 font-display text-2xl font-semibold text-brown">{title}</h3>
-              <p className="mt-3 text-sm leading-7 text-cocoa/72">{text}</p>
+              <h3 className="mt-7 font-display text-2xl font-semibold text-brown sm:text-3xl">{title}</h3>
+              <p className="mt-4 text-sm leading-8 text-cocoa/72 sm:text-base">{text}</p>
             </div>
           ))}
           </div>
@@ -762,13 +763,13 @@ function Testimonials() {
           title="What people usually order for."
           text="Make it easy to choose: quick lunch plates, family portions, weekend sweets, and preorder meals."
         />
-        <div className="mt-9 grid gap-4 sm:mt-12 md:grid-cols-3 md:gap-5">
+        <div className="mt-10 grid gap-5 sm:mt-14 md:grid-cols-3 md:gap-6">
           {popularRequests.map((item) => (
-            <article data-reveal key={item.name} className="rounded-[1.1rem] border border-cocoa/10 bg-ivory p-5 shadow-soft sm:p-7">
-              <Quote className="text-terracotta" size={28} />
-              <p className="mt-5 leading-8 text-cocoa/78">{item.text}</p>
-              <div className="mt-6 flex items-center justify-between">
-                <p className="font-bold text-brown">{item.name}</p>
+            <article data-reveal key={item.name} className="rounded-[1.6rem] border border-cocoa/10 bg-ivory p-7 shadow-soft sm:p-9 transition-all hover:shadow-warm">
+              <Quote className="text-terracotta/40" size={32} />
+              <p className="mt-6 text-sm leading-8 text-cocoa/80 sm:text-base sm:leading-9">{item.text}</p>
+              <div className="mt-8 flex items-center justify-between">
+                <p className="font-black text-brown uppercase tracking-wider text-xs">{item.name}</p>
               </div>
             </article>
           ))}
@@ -780,25 +781,26 @@ function Testimonials() {
 
 function CTASection({ onOpenOrder }) {
   return (
-    <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-      <div data-reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.2rem] bg-brown px-5 py-12 text-center text-ivory shadow-[0_30px_100px_rgba(58,58,58,0.2)] sm:rounded-[2.4rem] sm:px-10 sm:py-16 lg:py-24">
+    <section className="px-5 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div data-reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-brown px-6 py-16 text-center text-ivory shadow-[0_40px_120px_rgba(58,58,58,0.25)] sm:rounded-[3.5rem] sm:px-12 sm:py-24 lg:py-32">
         <img
           src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1600&q=85"
           alt="Warm spices used in Mauritian homemade cooking"
-          className="absolute inset-0 h-full w-full object-cover opacity-24"
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-brown/74" />
+        <div className="absolute inset-0 bg-brown/75" />
         <div className="relative mx-auto max-w-3xl">
-          <p className="mb-3 text-[0.68rem] font-black uppercase tracking-[0.18em] text-curry sm:text-xs sm:tracking-[0.24em]">Order Homemade</p>
-          <h2 className="font-display text-[2rem] font-semibold leading-tight sm:text-6xl">
+          <p className="mb-4 text-[0.68rem] font-black uppercase tracking-[0.25em] text-curry sm:text-xs">Order Homemade</p>
+          <h2 className="font-display text-[2.5rem] font-semibold leading-tight sm:text-7xl">
             Bring manze lakaz to your table today.
           </h2>
-          <p className="mt-5 text-[0.95rem] leading-7 text-ivory/74 sm:text-lg sm:leading-8">
+          <p className="mt-6 text-[0.95rem] leading-9 text-ivory/70 sm:text-xl sm:leading-10">
             Whether it is farata for lunch, breakfast for the family, or sweets for the weekend, we will prepare it with care.
           </p>
-          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-curry px-6 py-4 font-black text-brown transition hover:-translate-y-1 hover:bg-[#ffc4dc] sm:w-auto sm:px-7">
-              <WhatsAppIcon size={18} /> Order Now
+          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+            <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-15 w-full items-center justify-center gap-3 rounded-full bg-curry px-10 py-5 text-lg font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-xl shadow-curry/15 sm:w-auto">
+              <WhatsAppIcon size={22} className="transition group-hover:rotate-6" /> <span>Order Now</span>
             </button>
           </div>
         </div>
@@ -820,130 +822,141 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
   const orderCount = getOrderCount(orderItems);
   const whatsappOrderHref = `${whatsappHref}?text=${encodeURIComponent(buildWhatsAppMessage(orderItems, details))}`;
 
-  if (!open) {
-    return null;
-  }
-
   return (
-    <div className="fixed inset-0 z-[70] bg-brown/55 px-3 py-4 backdrop-blur-sm sm:px-6" role="dialog" aria-modal="true" aria-label="Review WhatsApp order">
-      <div className="mx-auto flex h-full max-w-2xl items-end sm:items-center">
-        <div className="max-h-[92svh] w-full overflow-y-auto rounded-[1.2rem] bg-ivory p-4 text-brown shadow-2xl sm:rounded-[1.6rem] sm:p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-terracotta">WhatsApp Order</p>
-              <h2 className="mt-1 font-display text-3xl font-semibold leading-tight">Review your order</h2>
-            </div>
-            <button
-              type="button"
-              aria-label="Close order review"
-              onClick={onClose}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown"
-            >
-              <X size={18} />
-            </button>
+    <div 
+      className={`fixed inset-0 z-[70] transition-all duration-500 ease-in-out ${open ? 'pointer-events-auto bg-brown/60 backdrop-blur-sm' : 'pointer-events-none bg-transparent backdrop-blur-0'}`} 
+      role="dialog" 
+      aria-modal="true" 
+      aria-label="Review WhatsApp order"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className={`mx-auto flex h-full max-w-2xl items-end transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1) sm:items-center ${open ? 'translate-y-0' : 'translate-y-full sm:translate-y-8 sm:opacity-0'}`}>
+        <div className="relative max-h-[94svh] w-full overflow-hidden rounded-t-[2rem] bg-ivory text-brown shadow-[0_-10px_40px_rgba(0,0,0,0.2)] sm:rounded-[2.4rem]">
+          {/* Drag Handle for Mobile */}
+          <div className="flex justify-center pt-3 pb-1 sm:hidden">
+            <div className="h-1.5 w-12 rounded-full bg-brown/10" />
           </div>
-
-          <div className="mt-5 rounded-[1rem] border border-cocoa/10 bg-white p-3">
-            {lines.length ? (
-              <div className="grid gap-2">
-                {lines.map((item) => (
-                  <div key={item.name} className="grid gap-3 rounded-xl bg-cream/70 p-3 min-[420px]:grid-cols-[1fr_auto] min-[420px]:items-center">
-                    <div>
-                      <p className="font-bold leading-5">{item.name}</p>
-                      <p className="mt-1 text-xs font-black text-terracotta">{item.price}</p>
-                    </div>
-                    <QuantityControl
-                      name={item.name}
-                      quantity={item.quantity}
-                      onIncrementItem={onIncrementItem}
-                      onDecrementItem={onDecrementItem}
-                      onSetItemQuantity={onSetItemQuantity}
-                      variant="light"
-                    />
-                  </div>
-                ))}
+          
+          <div className="overflow-y-auto p-5 pt-2 sm:p-8 sm:pt-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-terracotta sm:text-xs">WhatsApp Order</p>
+                <h2 className="mt-1 font-display text-3xl font-semibold leading-tight sm:text-4xl">Review your order</h2>
               </div>
-            ) : (
-              <div className="rounded-xl bg-cream/80 p-4 text-sm leading-6 text-cocoa">
-                No dishes selected yet. Add items from the menu, or send a general enquiry on WhatsApp.
-              </div>
-            )}
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1.5 text-sm font-bold">
-              Your name
-              <input
-                value={details.name}
-                onChange={(event) => setDetails((value) => ({ ...value, name: event.target.value }))}
-                placeholder="Name"
-                className="min-h-12 rounded-xl border border-cocoa/12 bg-white px-4 text-sm font-semibold outline-none focus:border-terracotta"
-              />
-            </label>
-            <label className="grid gap-1.5 text-sm font-bold">
-              Preferred time
-              <input
-                value={details.time}
-                onChange={(event) => setDetails((value) => ({ ...value, time: event.target.value }))}
-                placeholder="Today 18:00"
-                className="min-h-12 rounded-xl border border-cocoa/12 bg-white px-4 text-sm font-semibold outline-none focus:border-terracotta"
-              />
-            </label>
-            <div className="grid gap-1.5 text-sm font-bold">
-              Order type
-              <div className="grid grid-cols-2 gap-2 rounded-xl bg-white p-1">
-                {[
-                  ['pickup', 'Pickup'],
-                  ['delivery', 'Delivery'],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setDetails((detailsValue) => ({ ...detailsValue, orderType: value }))}
-                    className={`min-h-10 rounded-lg text-sm font-black transition ${details.orderType === value ? 'bg-brown text-ivory' : 'text-cocoa hover:bg-cream'}`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <label className="grid gap-1.5 text-sm font-bold">
-              Area
-              <input
-                value={details.area}
-                onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
-                placeholder="Vacoas / delivery area"
-                className="min-h-12 rounded-xl border border-cocoa/12 bg-white px-4 text-sm font-semibold outline-none focus:border-terracotta"
-              />
-            </label>
-            <label className="grid gap-1.5 text-sm font-bold sm:col-span-2">
-              Notes
-              <textarea
-                value={details.note}
-                onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
-                placeholder="Spice level, allergies, flavours, or special request"
-                rows={3}
-                className="resize-none rounded-xl border border-cocoa/12 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-terracotta"
-              />
-            </label>
-          </div>
-
-          <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
-            <a
-              href={whatsappOrderHref}
-              className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-curry px-5 py-3 text-sm font-black text-brown transition hover:-translate-y-0.5 hover:bg-[#ffc4dc]"
-            >
-              <WhatsAppIcon size={18} /> Send WhatsApp Order
-            </a>
-            {orderCount > 0 && (
               <button
                 type="button"
-                onClick={onClearOrder}
-                className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full border border-cocoa/12 bg-white px-5 py-3 text-sm font-black text-cocoa transition hover:bg-cream"
+                aria-label="Close order review"
+                onClick={onClose}
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cocoa/12 bg-white text-brown transition active:scale-90 tap-highlight-none"
               >
-                <Trash2 size={17} /> Clear
+                <X size={20} />
               </button>
-            )}
+            </div>
+
+            <div className="mt-6 rounded-3xl border border-cocoa/10 bg-white p-3.5 shadow-sm">
+              {lines.length ? (
+                <div className="grid gap-2.5">
+                  {lines.map((item) => (
+                    <div key={item.name} className="grid gap-4 rounded-2xl bg-cream/60 p-3.5 min-[420px]:grid-cols-[1fr_auto] min-[420px]:items-center">
+                      <div>
+                        <p className="font-bold leading-tight text-brown">{item.name}</p>
+                        <p className="mt-1 text-xs font-black text-terracotta">{item.price}</p>
+                      </div>
+                      <QuantityControl
+                        name={item.name}
+                        quantity={item.quantity}
+                        onIncrementItem={onIncrementItem}
+                        onDecrementItem={onDecrementItem}
+                        onSetItemQuantity={onSetItemQuantity}
+                        variant="light"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl bg-cream/70 p-5 text-sm leading-7 text-cocoa/80 text-center">
+                  No dishes selected yet. Add items from the menu to build your order.
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+                Your name
+                <input
+                  value={details.name}
+                  onChange={(event) => setDetails((value) => ({ ...value, name: event.target.value }))}
+                  placeholder="Enter your name"
+                  className="min-h-13 rounded-2xl border border-cocoa/12 bg-white px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                />
+              </label>
+              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+                Preferred time
+                <input
+                  value={details.time}
+                  onChange={(event) => setDetails((value) => ({ ...value, time: event.target.value }))}
+                  placeholder="e.g. Today 18:00"
+                  className="min-h-13 rounded-2xl border border-cocoa/12 bg-white px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                />
+              </label>
+              <div className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+                Order type
+                <div className="grid grid-cols-2 gap-2 rounded-2xl bg-cocoa/5 p-1.5">
+                  {[
+                    ['pickup', 'Pickup'],
+                    ['delivery', 'Delivery'],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setDetails((detailsValue) => ({ ...detailsValue, orderType: value }))}
+                      className={`min-h-11 rounded-xl text-sm font-black transition-all active:scale-95 tap-highlight-none ${details.orderType === value ? 'bg-brown text-ivory shadow-md' : 'text-cocoa/70 hover:bg-white/50'}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60">
+                Area
+                <input
+                  value={details.area}
+                  onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
+                  placeholder="Vacoas or delivery area"
+                  className="min-h-13 rounded-2xl border border-cocoa/12 bg-white px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                />
+              </label>
+              <label className="grid gap-2 text-xs font-black uppercase tracking-wider text-cocoa/60 sm:col-span-2">
+                Notes
+                <textarea
+                  value={details.note}
+                  onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
+                  placeholder="Spice level, allergies, or special requests..."
+                  rows={3}
+                  className="resize-none rounded-2xl border border-cocoa/12 bg-white px-5 py-4 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/10"
+                />
+              </label>
+            </div>
+
+            <div className="mt-8 grid gap-3 pb-4 sm:grid-cols-[1fr_auto] sm:pb-0">
+              <a
+                href={whatsappOrderHref}
+                className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-lg shadow-curry/20"
+              >
+                <WhatsAppIcon size={20} className="transition group-hover:rotate-6" />
+                <span>Send WhatsApp Order</span>
+              </a>
+              {orderCount > 0 && (
+                <button
+                  type="button"
+                  onClick={onClearOrder}
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-6 py-4 text-sm font-black text-cocoa transition-all hover:bg-cream active:scale-95 tap-highlight-none"
+                >
+                  <Trash2 size={18} />
+                  <span>Clear</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -952,22 +965,34 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
 }
 
 function MobileOrderBar({ orderCount, onOpenOrder }) {
+  const [shouldBump, setShouldBump] = useState(false);
+
+  useEffect(() => {
+    if (orderCount > 0) {
+      setShouldBump(true);
+      const timer = setTimeout(() => setShouldBump(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [orderCount]);
+
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-2.5 pb-[calc(0.7rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur md:hidden">
-      <div className="mx-auto grid max-w-md grid-cols-[0.9fr_0.9fr_1.2fr] gap-2">
-        <a href="#menu" className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown">
-          <ArrowRight size={16} /> Menu
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-3 pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur-xl md:hidden">
+      <div className={`mx-auto grid max-w-md grid-cols-[0.85fr_0.85fr_1.3fr] gap-2.5 transition-transform duration-300 ${shouldBump ? 'animate-bump' : ''}`}>
+        <a href="#menu" className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown transition active:scale-95 tap-highlight-none">
+          <ArrowRight size={17} /> Menu
         </a>
-        <a href={phoneHref} className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown">
+        <a href={phoneHref} className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown transition active:scale-95 tap-highlight-none">
           <Phone size={17} /> Call
         </a>
         <button
           type="button"
           onClick={onOpenOrder}
-          className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full bg-curry px-2 text-xs font-black text-brown"
+          className="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full bg-curry px-2 text-xs font-black text-brown transition active:scale-[0.97] tap-highlight-none shadow-md shadow-curry/20"
         >
-          {orderCount ? <ShoppingBag size={16} /> : <WhatsAppIcon size={17} />}
-          {orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'}` : 'Order'}
+          {orderCount ? <ShoppingBag size={18} /> : <WhatsAppIcon size={18} />}
+          <span className="truncate">
+            {orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'}` : 'Order'}
+          </span>
         </button>
       </div>
     </div>
@@ -976,44 +1001,45 @@ function MobileOrderBar({ orderCount, onOpenOrder }) {
 
 function Footer() {
   return (
-    <footer id="contact" className="bg-[#2b2b2b] px-5 py-14 text-ivory sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+    <footer id="contact" className="bg-[#2b2b2b] px-5 py-16 text-ivory sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <img
               src={logoSrc}
               alt="Curry Worry logo"
-              className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-curry/70"
+              loading="lazy"
+              className="h-13 w-13 shrink-0 rounded-full object-cover ring-2 ring-curry/70"
             />
             <div>
-              <p className="font-display text-2xl font-semibold">Curry Worry</p>
-              <p className="text-sm text-ivory/58">Homemade Mauritian Food</p>
+              <p className="font-display text-2xl font-semibold leading-tight">Curry Worry</p>
+              <p className="text-xs font-black uppercase tracking-wider text-ivory/40">Homemade Moris Food</p>
             </div>
           </div>
-          <p className="mt-5 max-w-sm text-sm leading-7 text-ivory/62">
-            Freshly prepared Mauritian comfort food for order, takeaway, and local delivery.
+          <p className="mt-6 max-w-sm text-sm leading-8 text-ivory/60">
+            Freshly prepared Mauritian comfort food for order, takeaway, and local delivery. Warm, generous, and made to taste like home.
           </p>
         </div>
         <div>
-          <h3 className="font-bold text-curry">Order Hours</h3>
-          <p className="mt-4 flex gap-2 text-sm leading-7 text-ivory/68"><Clock size={17} className="mt-1 shrink-0" /> Mon-Sat: 08:00-20:00</p>
-          <p className="text-sm leading-7 text-ivory/68">Sunday orders by advance request</p>
+          <h3 className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-curry">Order Hours</h3>
+          <p className="mt-6 flex gap-3 text-sm leading-7 text-ivory/70"><Clock size={18} className="mt-0.5 shrink-0 text-curry/50" /> Mon-Sat: 08:00-20:00</p>
+          <p className="mt-2 text-sm leading-7 text-ivory/50 pl-7">Sunday orders by advance request</p>
         </div>
         <div>
-          <h3 className="font-bold text-curry">Pickup Area</h3>
-          <p className="mt-4 flex gap-2 text-sm leading-7 text-ivory/68"><MapPin size={17} className="mt-1 shrink-0" /> Vacoas, Mauritius</p>
-          <a href={phoneHref} className="mt-2 flex gap-2 text-sm leading-7 text-ivory/68 transition hover:text-curry"><Phone size={17} className="mt-1 shrink-0" /> {phoneDisplay}</a>
-          <a href={emailHref} className="mt-2 flex gap-2 text-sm leading-7 text-ivory/68 transition hover:text-curry"><Mail size={17} className="mt-1 shrink-0" /> curry.ate.worry@gmail.com</a>
+          <h3 className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-curry">Pickup Area</h3>
+          <p className="mt-6 flex gap-3 text-sm leading-7 text-ivory/70"><MapPin size={18} className="mt-0.5 shrink-0 text-curry/50" /> Vacoas, Mauritius</p>
+          <a href={phoneHref} className="mt-3 flex gap-3 text-sm leading-7 text-ivory/70 transition hover:text-curry active:scale-95 tap-highlight-none"><Phone size={18} className="mt-0.5 shrink-0 text-curry/50" /> {phoneDisplay}</a>
+          <a href={emailHref} className="mt-3 flex gap-3 text-sm leading-7 text-ivory/70 transition hover:text-curry active:scale-95 tap-highlight-none"><Mail size={18} className="mt-0.5 shrink-0 text-curry/50" /> curry.ate.worry@gmail.com</a>
         </div>
         <div>
-          <h3 className="font-bold text-curry">Follow</h3>
-          <a href={whatsappHref} className="mt-4 flex items-center gap-2 text-sm text-ivory/68 transition hover:text-curry">
-            <WhatsAppIcon size={18} /> WhatsApp orders
+          <h3 className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-curry">Follow</h3>
+          <a href={whatsappHref} className="mt-6 flex items-center gap-3 text-sm text-ivory/70 transition hover:text-curry active:scale-95 tap-highlight-none">
+            <WhatsAppIcon size={20} className="text-curry/50" /> WhatsApp orders
           </a>
-          <a href={facebookHref} className="mt-3 flex items-center gap-2 text-sm text-ivory/68 transition hover:text-curry">
-            <Share2 size={18} /> Curry Worry
+          <a href={facebookHref} className="mt-4 flex items-center gap-3 text-sm text-ivory/70 transition hover:text-curry active:scale-95 tap-highlight-none">
+            <Share2 size={20} className="text-curry/50" /> Curry Worry
           </a>
-          <p className="mt-8 flex items-center gap-2 text-xs text-ivory/45"><CalendarCheck size={15} /> Advance orders recommended.</p>
+          <p className="mt-10 flex items-center gap-2.5 text-[0.65rem] font-bold text-ivory/30 uppercase tracking-widest"><CalendarCheck size={16} /> Advance orders recommended.</p>
         </div>
       </div>
     </footer>

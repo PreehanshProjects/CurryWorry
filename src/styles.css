@@ -19,6 +19,19 @@
   --shadow-warm: 0 28px 80px rgba(255, 179, 209, 0.24);
 }
 
+@keyframes bump {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-bump {
+  animation: bump 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
 * {
   box-sizing: border-box;
 }
