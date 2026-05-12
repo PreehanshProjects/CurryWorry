@@ -82,6 +82,59 @@ html {
   overscroll-behavior: contain;
 }
 
+/* Lightbox Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lightbox-overlay {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.lightbox-content {
+  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Menu Search & Filters */
+.filter-pill {
+  @apply inline-flex items-center justify-center px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 border border-white/10;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-pill-active {
+  @apply bg-curry text-brown border-curry shadow-lg shadow-curry/20;
+}
+
+.filter-pill-inactive {
+  @apply bg-white/5 text-ivory/60 hover:bg-white/10 hover:text-ivory;
+}
+
+/* Interaction Animations */
+@keyframes cartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-cart-pulse {
+  animation: cartPulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+.animate-float-up {
+  animation: floatUp 0.8s ease-out forwards;
+}
+
 body {
   margin: 0;
   min-width: 320px;

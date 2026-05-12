@@ -4,6 +4,8 @@ import {
   ArrowRight,
   CalendarCheck,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Leaf,
   Mail,
@@ -13,11 +15,82 @@ import {
   Phone,
   Plus,
   Quote,
+  Search,
   Share2,
   ShoppingBag,
   Trash2,
   X,
 } from 'lucide-react';
+
+// ... (rest of imports unchanged)
+
+function Lightbox({ images, selectedIndex, onClose, onPrev, onNext }) {
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'ArrowRight') onNext();
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedIndex, onClose, onPrev, onNext]);
+
+  if (selectedIndex === null) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-brown/95 backdrop-blur-md transition-opacity duration-300 lightbox-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-20 grid h-12 w-12 place-items-center rounded-full bg-white/10 text-ivory transition hover:bg-white/20 active:scale-90"
+        aria-label="Close fullscreen view"
+      >
+        <X size={24} />
+      </button>
+
+      <div className="relative flex h-full w-full items-center justify-center px-4 py-20 sm:px-12 lightbox-content">
+        <button
+          onClick={(e) => { e.stopPropagation(); onPrev(); }}
+          className="absolute left-4 z-10 grid h-12 w-12 place-items-center rounded-full bg-white/10 text-ivory transition hover:bg-white/20 active:scale-90 sm:left-8 sm:h-16 sm:w-16"
+          aria-label="Previous image"
+        >
+          <ChevronLeft size={32} />
+        </button>
+
+        <img
+          src={images[selectedIndex]}
+          key={images[selectedIndex]}
+          alt={`Gallery image ${selectedIndex + 1}`}
+          className="max-h-full max-w-full rounded-xl object-contain shadow-2xl transition-transform duration-500"
+        />
+
+        <button
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
+          className="absolute right-4 z-10 grid h-12 w-12 place-items-center rounded-full bg-white/10 text-ivory transition hover:bg-white/20 active:scale-90 sm:right-8 sm:h-16 sm:w-16"
+          aria-label="Next image"
+        >
+          <ChevronRight size={32} />
+        </button>
+      </div>
+
+      <div className="absolute bottom-8 text-sm font-semibold text-ivory/60">
+        {selectedIndex + 1} / {images.length}
+      </div>
+    </div>
+  );
+}
 import './styles.css';
 
 const phoneDisplay = '+230 5756 3134';
@@ -25,11 +98,12 @@ const phoneHref = 'tel:+23057563134';
 const whatsappHref = 'https://wa.me/23057563134';
 const emailHref = 'mailto:curry.ate.worry@gmail.com';
 const facebookHref = 'https://www.facebook.com/search/top?q=Curry%20Worry';
-const logoSrc = '/assets/curry-worry-logo.png';
+const logoSrc = '/assets/optimized/curry-worry-logo.png';
 
 const navItems = [
   ['Menu', '#menu'],
   ['Breakfast', '#breakfast'],
+  ['Gallery', '#gallery'],
   ['Desserts', '#desserts'],
   ['Order Info', '#order'],
   ['Contact', '#contact'],
@@ -37,13 +111,20 @@ const navItems = [
 
 const quickOrderItems = ['Farata', 'Rougaille', 'Cari poule', 'Touffe', 'Sweets'];
 
+const galleryThumbModules = import.meta.glob('./assets/gallery-thumbs/*.{jpg,jpeg,webp}', { eager: true });
+const galleryItems = Object.values(galleryThumbModules).map((module) => ({
+  full: module.default,
+  thumb: module.default,
+}));
+const galleryFullImages = galleryItems.map((item) => item.full);
+
 const featuredDishes = [
   {
     name: 'Farata ek Rougaille Touni',
     badge: 'Most ordered',
     spice: 'Medium spice',
     price: 'From Rs 160',
-    image: '/assets/farata-rougaille-touni.png',
+    image: '/assets/optimized/farata-rougaille-touni.jpg',
     description: 'Soft handmade farata served with rich rougaille touni, fresh herbs, and a proper homemade finish.',
   },
   {
@@ -51,7 +132,7 @@ const featuredDishes = [
     badge: 'Family favorite',
     spice: 'Warm spice',
     price: 'Family portions',
-    image: '/assets/cari-poule-masala.png',
+    image: '/assets/optimized/cari-poule-masala.jpg',
     description: 'Chicken cooked slowly with masala, ginger, garlic, and a sauce that tastes like Sunday lunch.',
   },
   {
@@ -59,7 +140,7 @@ const featuredDishes = [
     badge: 'Vegetarian',
     spice: 'Gentle',
     price: 'Side portions',
-    image: '/assets/giromon-touffe.png',
+    image: '/assets/optimized/giromon-touffe.jpg',
     description: 'Pumpkin softened with onion, herbs, and Mauritian seasoning. Simple, sweet, and comforting.',
   },
 ];
@@ -69,42 +150,42 @@ const menuSections = [
     title: 'Breakfast',
     note: 'Available for morning preorders, takeaway, or nearby delivery when confirmed.',
     items: [
-      ['Pancakes', 'From Rs 75', 'Nature, chocolat, vanille, amande, or fruits rouges'],
-      ['Muffins', 'From Rs 45', 'Chocolat, amande, or vanille'],
-      ['Toast', 'From Rs 60', 'Simple breakfast option for takeaway'],
-      ['Omelettes', 'From Rs 85', 'Confirm fillings and quantity'],
-      ['Smoothies & Milkshakes', 'From Rs 95', 'Vanille, chocolat, amande, and daily options'],
+      ['Pancakes', 'From Rs 75', 'Nature, chocolat, vanille, amande, or fruits rouges', false],
+      ['Muffins', 'From Rs 45', 'Chocolat, amande, or vanille', false],
+      ['Toast', 'From Rs 60', 'Simple breakfast option for takeaway', true],
+      ['Omelettes', 'From Rs 85', 'Confirm fillings and quantity', false],
+      ['Smoothies & Milkshakes', 'From Rs 95', 'Vanille, chocolat, amande, and daily options', true],
     ],
   },
   {
     title: 'Breads & Sides',
     note: 'Order by piece or tray. Best paired with rougaille, curry, and family portions.',
     items: [
-      ['Farata', 'Rs 25 each', 'Minimum 6 recommended'],
-      ['Roti', 'Rs 20 each', 'Minimum 6 recommended'],
-      ['Puri', 'Rs 20 each', 'Breakfast or curry side'],
-      ['Gro Pois', 'From Rs 90', 'Small or family portion'],
-      ['Satini Poul', 'From Rs 85', 'Confirm spice level'],
+      ['Farata', 'Rs 25 each', 'Minimum 6 recommended', true],
+      ['Roti', 'Rs 20 each', 'Minimum 6 recommended', true],
+      ['Puri', 'Rs 20 each', 'Breakfast or curry side', true],
+      ['Gro Pois', 'From Rs 90', 'Small or family portion', true],
+      ['Satini', 'From Rs 85', 'Confirm spice level', true],
     ],
   },
   {
     title: 'Curries & Rougaille',
     note: 'Cooked fresh for lunch, dinner, or preorder family meals.',
     items: [
-      ['Pilchard Masala avek Ti Pois', 'From Rs 160', 'Lunch box or portion'],
-      ['Rougaille Touni', 'From Rs 145', 'Good with farata'],
-      ['Rougaille Soya', 'From Rs 120', 'Vegetarian option'],
-      ['Cari Poule Masala', 'From Rs 185', 'Family portions available'],
-      ['Saute Lavyann Mouton', 'Preorder', 'Order in advance'],
+      ['Pilchard Masala avek Ti Pois', 'From Rs 160', 'Lunch box or portion', false],
+      ['Rougaille Touni', 'From Rs 145', 'Good with farata', true],
+      ['Rougaille Soya', 'From Rs 120', 'Vegetarian option', true],
+      ['Cari Poule Masala', 'From Rs 185', 'Family portions available', false],
+      ['Saute Lavyann Mouton', 'Preorder', 'Order in advance', false],
     ],
   },
   {
     title: 'Vegetables & Touffe',
     note: 'Homemade vegetable sides for balanced family orders.',
     items: [
-      ['Giromon Touffe', 'From Rs 90', 'Mild and sweet'],
-      ['Brede Touffe', 'From Rs 90', 'Daily availability'],
-      ['Sousou Touffe', 'From Rs 90', 'Daily availability'],
+      ['Giromon Touffe', 'From Rs 90', 'Mild and sweet', true],
+      ['Brede Touffe', 'From Rs 90', 'Daily availability', true],
+      ['Sousou Touffe', 'From Rs 90', 'Daily availability', true],
     ],
   },
 ];
@@ -148,33 +229,45 @@ const desserts = [
   },
   {
     name: 'Sago Appalam',
-    image: '/assets/sago-appalam-ai.png',
+    image: '/assets/optimized/sago-appalam-ai.jpg',
     text: 'Sweet sago with the salty crunch of appalam, served the Mauritian-Tamil way.',
   },
   {
     name: 'Poudine Mais',
-    image: '/assets/poudine-mais-ai.png',
+    image: '/assets/optimized/poudine-mais-ai.jpg',
     text: 'Simple, golden, and comforting in the way homemade desserts should be.',
   },
   {
     name: 'Gato Patate',
-    image: '/assets/gato-patate.png',
+    image: '/assets/optimized/gato-patate.jpg',
     text: 'Traditional sweet potato cakes with a soft, familiar heart.',
   },
 ];
 
 const orderSteps = [
-  ['Choose dishes', 'Pick your dishes and mention quantity for each item.'],
+  ['Choose dishes', 'Pick your dishes, quantities, and mention if you need individual or family portions.'],
   ['Message details', 'Send pickup time, delivery area, and any allergy or spice preference.'],
-  ['Confirm availability', 'You will get confirmation before the food is prepared.'],
+  ['Confirm final total', 'Portion size, delivery coverage, payment method, and final price are confirmed on WhatsApp before cooking.'],
   ['Collect warm', 'Pickup in Vacoas or arrange nearby delivery when available.'],
 ];
 
 const orderFacts = [
   ['Pickup', 'Vacoas, Mauritius'],
   ['Hours', 'Mon-Sat, 08:00-20:00'],
-  ['Delivery', 'Nearby areas when available'],
-  ['Best for', 'Preorders and family portions'],
+  ['Delivery', 'Vacoas and nearby areas, fee confirmed by location'],
+  ['Payment', `Juice on ${phoneDisplay} or cash on delivery`],
+  ['Final total', 'Confirmed on WhatsApp before cooking'],
+];
+
+const orderConfidenceNotes = [
+  ['Portions', 'Lunch boxes, small sides, and family portions are available depending on the dish.'],
+  ['Minimums', 'Farata, roti, and puri are best ordered from 6 pieces; sweets and trays can be confirmed by request.'],
+  ['Delivery fee', 'Delivery covers Vacoas and nearby areas when available. The fee is confirmed before preparation.'],
+];
+
+const paymentOptions = [
+  ['juice', 'Juice', `Pay by Juice on ${phoneDisplay}`],
+  ['cash', 'Cash', 'Pay cash on delivery or pickup'],
 ];
 
 function getOrderCount(orderItems) {
@@ -196,6 +289,9 @@ function buildWhatsAppMessage(orderItems, details) {
   const preferredTime = details.time.trim() || '[Preferred time]';
   const area = details.area.trim() || '[Area / pickup confirmation]';
   const note = details.note.trim() || 'No special note';
+  const paymentMethod = details.paymentMethod === 'cash'
+    ? 'Cash on delivery / pickup'
+    : `Juice on ${phoneDisplay}`;
 
   return [
     'Hello Curry Worry, I would like to place an order.',
@@ -208,9 +304,10 @@ function buildWhatsAppMessage(orderItems, details) {
     `- Type: ${orderType}`,
     `- Preferred time: ${preferredTime}`,
     `- Area: ${area}`,
+    `- Payment: ${paymentMethod}`,
     `- Notes: ${note}`,
     '',
-    'Please confirm availability and total price. Thank you.',
+    'Please confirm portion size, availability, delivery coverage, delivery fee if needed, and final total before preparing. Thank you.',
   ].join('\n');
 }
 
@@ -287,7 +384,6 @@ const popularRequests = [
 
 function useReveal() {
   useEffect(() => {
-    const items = document.querySelectorAll('[data-reveal]');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -300,12 +396,30 @@ function useReveal() {
       { threshold: 0.14, rootMargin: '0px 0px -48px 0px' },
     );
 
-    items.forEach((item) => observer.observe(item));
-    return () => observer.disconnect();
+    const observeItems = () => {
+      const items = document.querySelectorAll('[data-reveal]:not(.is-visible)');
+      items.forEach((item) => observer.observe(item));
+    };
+
+    observeItems();
+
+    const mutationObserver = new MutationObserver(() => {
+      observeItems();
+    });
+
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
   }, []);
 }
 
-function Navbar({ onOpenOrder }) {
+function Navbar({ onOpenOrder, isBumping }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -334,7 +448,7 @@ function Navbar({ onOpenOrder }) {
         <button
           type="button"
           onClick={onOpenOrder}
-          className="hidden items-center gap-2 rounded-full bg-curry px-6 py-3 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none lg:inline-flex"
+          className={`hidden items-center gap-2 rounded-full bg-curry px-6 py-3 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none lg:inline-flex ${isBumping ? 'animate-cart-pulse' : ''}`}
         >
           <WhatsAppIcon size={17} /> WhatsApp
         </button>
@@ -367,7 +481,7 @@ function Navbar({ onOpenOrder }) {
                 setOpen(false);
                 onOpenOrder();
               }}
-              className="mt-1 flex items-center justify-center gap-2.5 rounded-2xl bg-terracotta px-5 py-4 font-black text-ivory transition active:scale-[0.98] tap-highlight-none"
+              className={`mt-1 flex items-center justify-center gap-2.5 rounded-2xl bg-terracotta px-5 py-4 font-black text-ivory transition active:scale-[0.98] tap-highlight-none ${isBumping ? 'animate-cart-pulse' : ''}`}
             >
               <WhatsAppIcon size={20} /> WhatsApp Order
             </button>
@@ -459,7 +573,7 @@ function Hero({ onOpenOrder }) {
         <div data-reveal className="absolute bottom-8 right-5 hidden w-[370px] rounded-[2rem] border border-white/16 bg-white/12 p-4 shadow-2xl backdrop-blur-xl xl:block">
           <div className="flex items-center gap-4">
             <img
-              src="/assets/farata-rougaille-touni.png"
+              src="/assets/optimized/farata-rougaille-touni.jpg"
               alt="Fresh homemade farata with rougaille touni"
               className="h-24 w-24 rounded-[1.4rem] object-cover"
             />
@@ -519,7 +633,22 @@ function FeaturedDishes() {
 }
 
 function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem, onSetItemQuantity, onOpenOrder }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [vegOnly, setVegOnly] = useState(false);
   const orderCount = getOrderCount(orderItems);
+
+  const filteredSections = menuSections.map(section => {
+    const filteredItems = section.items.filter(item => {
+      const matchesSearch = item[0].toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           item[2].toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesVeg = !vegOnly || item[3] === true;
+      return matchesSearch && matchesVeg;
+    });
+
+    if (filteredItems.length === 0) return null;
+
+    return { ...section, items: filteredItems };
+  }).filter(Boolean);
 
   return (
     <section id="menu" className="section warm-texture bg-brown text-ivory">
@@ -528,13 +657,38 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
           light
           eyebrow="Menu Guide"
           title="Pick dishes, send quantities, confirm the time."
-          text="Use this as a quick ordering list. Prices are starting guides, with portions, spice level, pickup, and nearby delivery confirmed by WhatsApp before cooking starts."
+          text="Use this as a quick ordering list. Prices are starting guides; portion size, delivery fee, and final total are confirmed on WhatsApp before cooking starts."
         />
-        <div data-reveal className="mx-auto mt-7 grid max-w-4xl gap-3 rounded-[1.2rem] border border-curry/22 bg-curry/12 p-3 text-sm font-semibold text-ivory/82 sm:grid-cols-3 sm:p-4">
+        
+        {/* Search & Simplified Filters */}
+        <div data-reveal className="mx-auto mt-10 max-w-4xl">
+          <div className="grid gap-4 sm:flex sm:items-center">
+            <div className="relative grow">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-ivory/40" size={20} />
+              <input 
+                type="text"
+                placeholder="Search dishes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-14 pr-6 text-sm font-semibold text-ivory outline-none transition focus:bg-white/10 focus:ring-4 focus:ring-curry/10"
+              />
+            </div>
+            
+            <button
+              onClick={() => setVegOnly(!vegOnly)}
+              className={`flex h-14 items-center gap-3 rounded-2xl border px-6 transition-all active:scale-95 tap-highlight-none sm:shrink-0 ${vegOnly ? 'bg-leaf/20 border-leaf text-leaf shadow-lg shadow-leaf/10' : 'bg-white/5 border-white/10 text-ivory/60 hover:bg-white/10'}`}
+            >
+              <Leaf size={20} className={vegOnly ? 'animate-pulse' : ''} />
+              <span className="text-sm font-bold">Veg Only</span>
+            </button>
+          </div>
+        </div>
+
+        <div data-reveal className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-[1.2rem] border border-curry/22 bg-curry/12 p-3 text-sm font-semibold text-ivory/82 sm:grid-cols-3 sm:p-4">
           {[
             ['1. Choose', 'List dishes and quantities'],
-            ['2. Confirm', 'Pickup time and area'],
-            ['3. Collect', 'Food packed warm'],
+            ['2. Confirm', 'Portions, time, and area'],
+            ['3. Pay total', 'Final price confirmed first'],
           ].map(([label, text]) => (
             <div key={label} className="rounded-xl bg-white/[0.07] px-4 py-3">
               <span className="block font-black text-curry">{label}</span>
@@ -543,8 +697,17 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
           ))}
         </div>
 
+        <div data-reveal className="mx-auto mt-4 grid max-w-4xl gap-3 rounded-[1.2rem] border border-white/10 bg-white/[0.06] p-3 text-sm text-ivory/74 sm:grid-cols-3 sm:p-4">
+          {orderConfidenceNotes.map(([label, text]) => (
+            <div key={label} className="rounded-xl bg-brown/20 px-4 py-3">
+              <span className="block text-[0.65rem] font-black uppercase tracking-widest text-curry">{label}</span>
+              <span className="mt-1.5 block leading-6">{text}</span>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-7 grid gap-4 sm:mt-9 md:grid-cols-2 xl:grid-cols-4">
-          {menuSections.map((section) => (
+          {filteredSections.map((section) => (
             <article data-reveal key={section.title} className="rounded-[1.1rem] border border-white/10 bg-white/[0.07] p-4 backdrop-blur sm:p-5">
               <div className="border-b border-white/10 pb-4">
                 <h3 className="font-display text-2xl font-semibold text-ivory sm:text-3xl">{section.title}</h3>
@@ -585,6 +748,13 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
             </article>
           ))}
         </div>
+        
+        {filteredSections.length === 0 && (
+          <div className="mt-20 text-center">
+            <p className="text-xl font-semibold text-ivory/40">No dishes found matching your search.</p>
+          </div>
+        )}
+
         <div data-reveal className="mt-8 flex flex-col items-center justify-between gap-5 rounded-[1.6rem] border border-curry/20 bg-curry/12 p-5 text-sm font-semibold leading-7 text-ivory/80 sm:flex-row sm:p-7">
           <span className="max-w-md">{orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'} selected. Review your order before sending it on WhatsApp.` : 'Ready to order? Add dishes from the menu, then send a prepared WhatsApp order.'}</span>
           <button
@@ -640,6 +810,74 @@ function BreakfastSection() {
   );
 }
 
+function GallerySection() {
+  const [visibleCount, setVisibleCount] = useState(12);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  
+  const hasMore = visibleCount < galleryItems.length;
+
+  const openLightbox = (index) => setSelectedIndex(index);
+  const closeLightbox = () => setSelectedIndex(null);
+  const nextImage = () => setSelectedIndex((prev) => (prev + 1) % galleryItems.length);
+  const prevImage = () => setSelectedIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
+
+  return (
+    <section id="gallery" className="section bg-ivory">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <SectionHeader
+          eyebrow="Our Kitchen Gallery"
+          title="A peek into our daily cooking."
+          text="Freshly rolled farata, simmering curries, and the vibrant colors of homemade Mauritian food. Everything you see is made with care, just for you."
+        />
+        
+        <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-4">
+          {galleryItems.slice(0, visibleCount).map((item, index) => (
+            <div 
+              key={item.full} 
+              data-reveal 
+              onClick={() => openLightbox(index)}
+              className="group relative aspect-square cursor-pointer overflow-hidden rounded-2xl bg-cream shadow-sm transition-all duration-500 hover:z-10 hover:scale-[1.03] hover:shadow-xl"
+              style={{ transitionDelay: `${(index % 5) * 100}ms` }}
+            >
+              <img 
+                src={item.thumb} 
+                alt={`Gallery image ${index + 1}`} 
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-brown/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div className="rounded-full bg-white/20 p-3 text-ivory backdrop-blur-md">
+                  <Plus size={24} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {hasMore && (
+          <div className="mt-12 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount(prev => prev + 15)}
+              className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full border border-cocoa/12 bg-white px-10 py-4 text-sm font-black text-brown transition hover:bg-cream active:scale-95 tap-highlight-none shadow-sm"
+            >
+              View More Photos
+            </button>
+          </div>
+        )}
+      </div>
+
+      <Lightbox
+        images={galleryFullImages}
+        selectedIndex={selectedIndex}
+        onClose={closeLightbox}
+        onPrev={prevImage}
+        onNext={nextImage}
+      />
+    </section>
+  );
+}
+
 function DessertGrid() {
   return (
     <section id="desserts" className="section bg-ivory">
@@ -673,7 +911,7 @@ function StorySection() {
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-6 lg:grid-cols-[1fr_1fr] lg:px-8">
         <div data-reveal className="relative">
           <img
-            src="/assets/farata-rougaille-touni.png"
+            src="/assets/optimized/farata-rougaille-touni.jpg"
             alt="Fresh homemade farata with rougaille touni"
             loading="lazy"
             className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-warm sm:aspect-[4/5]"
@@ -714,12 +952,12 @@ function OrderSteps({ onOpenOrder }) {
         <SectionHeader
           eyebrow="Order Info"
           title="Simple manual ordering, no app account needed."
-          text="Order through WhatsApp or phone, then confirm portions, timing, pickup, or nearby delivery directly."
+          text={`Order through WhatsApp or phone, then confirm portions, timing, Vacoas or nearby delivery, payment by Juice on ${phoneDisplay} or cash, and final total before preparation.`}
         />
         <div className="mt-10 grid gap-5 sm:mt-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
           <div data-reveal className="rounded-[2rem] bg-brown p-7 text-ivory shadow-warm sm:p-10">
             <p className="font-display text-4xl font-semibold">Ready to order?</p>
-            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability and portions can be confirmed manually.</p>
+            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, pickup time, and delivery area. Availability, portion size, Vacoas or nearby delivery coverage, delivery fee, payment method, and final total are confirmed manually before cooking starts.</p>
             <div className="mt-8 grid gap-4">
               <button type="button" onClick={onOpenOrder} className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-curry px-8 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10">
                 <WhatsAppIcon size={20} /> WhatsApp Order
@@ -813,6 +1051,7 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
   const [details, setDetails] = useState({
     name: '',
     orderType: 'pickup',
+    paymentMethod: 'juice',
     time: '',
     area: '',
     note: '',
@@ -883,6 +1122,21 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
               )}
             </div>
 
+            <div className="mt-5 grid gap-3 rounded-[1.6rem] border border-cocoa/10 bg-cream/70 p-4 text-sm leading-6 text-cocoa/76 sm:p-5">
+              <div className="flex gap-3">
+                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-terracotta" />
+                <p><span className="font-black text-brown">Final total confirmed first.</span> Menu prices are guides, especially for family portions and custom quantities.</p>
+              </div>
+              <div className="flex gap-3">
+                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-terracotta" />
+                <p><span className="font-black text-brown">Delivery fee depends on area.</span> Vacoas and nearby delivery are confirmed by location and time before cooking starts.</p>
+              </div>
+              <div className="flex gap-3">
+                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-terracotta" />
+                <p><span className="font-black text-brown">Payment is simple.</span> Pay by Juice on {phoneDisplay}, or pay cash on delivery or pickup.</p>
+              </div>
+            </div>
+
             <div className="mt-8 grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50">
                 Your name
@@ -925,16 +1179,32 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                 <input
                   value={details.area}
                   onChange={(event) => setDetails((value) => ({ ...value, area: event.target.value }))}
-                  placeholder="Vacoas or delivery area"
+                  placeholder="Vacoas or nearby delivery area"
                   className="min-h-14 rounded-2xl border border-cocoa/12 bg-white px-6 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                 />
               </label>
+              <div className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 sm:col-span-2">
+                Payment
+                <div className="grid gap-2 rounded-2xl bg-cocoa/5 p-1.5 sm:grid-cols-2">
+                  {paymentOptions.map(([value, label, text]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setDetails((detailsValue) => ({ ...detailsValue, paymentMethod: value }))}
+                      className={`rounded-xl px-4 py-3 text-left transition-all active:scale-95 tap-highlight-none ${details.paymentMethod === value ? 'bg-brown text-ivory shadow-lg' : 'text-cocoa/70 hover:bg-white/50'}`}
+                    >
+                      <span className="block text-sm font-black">{label}</span>
+                      <span className={`mt-1 block text-xs font-semibold leading-5 ${details.paymentMethod === value ? 'text-ivory/70' : 'text-cocoa/54'}`}>{text}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className="grid gap-2.5 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 sm:col-span-2">
                 Notes
                 <textarea
                   value={details.note}
                   onChange={(event) => setDetails((value) => ({ ...value, note: event.target.value }))}
-                  placeholder="Spice level, allergies, or special requests..."
+                  placeholder="Portion size, spice level, allergies, tray size, or delivery details..."
                   rows={3}
                   className="resize-none rounded-2xl border border-cocoa/12 bg-white px-6 py-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                 />
@@ -945,6 +1215,9 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
           {/* Sticky Footer Actions */}
           <div className="shrink-0 border-t border-cocoa/10 bg-ivory/80 px-6 pt-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:px-9 sm:pb-10 sm:pt-6">
             <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+              <p className="text-xs font-semibold leading-5 text-cocoa/60 sm:col-span-2">
+                Sending this message does not lock the price. Curry Worry will confirm availability, portion size, delivery coverage, delivery fee if needed, payment method, and final total on WhatsApp before preparation.
+              </p>
               <a
                 href={whatsappOrderHref}
                 className="group inline-flex min-h-15 items-center justify-center gap-3.5 rounded-full bg-curry px-10 py-5 text-lg font-black text-brown transition-all hover:bg-[#ffc4dc] active:scale-[0.98] tap-highlight-none shadow-[0_12px_40px_rgba(255,179,209,0.3)]"
@@ -970,20 +1243,10 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
   );
 }
 
-function MobileOrderBar({ orderCount, onOpenOrder }) {
-  const [shouldBump, setShouldBump] = useState(false);
-
-  useEffect(() => {
-    if (orderCount > 0) {
-      setShouldBump(true);
-      const timer = setTimeout(() => setShouldBump(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [orderCount]);
-
+function MobileOrderBar({ orderCount, onOpenOrder, isBumping }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-3 pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur-xl md:hidden">
-      <div className={`mx-auto grid max-w-md grid-cols-[0.85fr_0.85fr_1.3fr] gap-2.5 transition-transform duration-300 ${shouldBump ? 'animate-bump' : ''}`}>
+      <div className="mx-auto grid max-w-md grid-cols-[0.85fr_0.85fr_1.3fr] gap-2.5">
         <a href="#menu" className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown transition active:scale-95 tap-highlight-none">
           <ArrowRight size={17} /> Menu
         </a>
@@ -993,8 +1256,13 @@ function MobileOrderBar({ orderCount, onOpenOrder }) {
         <button
           type="button"
           onClick={onOpenOrder}
-          className="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full bg-curry px-2 text-xs font-black text-brown transition active:scale-[0.97] tap-highlight-none shadow-md shadow-curry/20"
+          className={`relative inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full bg-curry px-2 text-xs font-black text-brown transition active:scale-[0.97] tap-highlight-none shadow-md shadow-curry/20 ${isBumping ? 'animate-cart-pulse' : ''}`}
         >
+          {isBumping && (
+            <span className="absolute -top-1 left-1/2 -translate-x-1/2 animate-float-up text-lg font-black text-terracotta">
+              +1
+            </span>
+          )}
           {orderCount ? <ShoppingBag size={18} /> : <WhatsAppIcon size={18} />}
           <span className="truncate">
             {orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'}` : 'Order'}
@@ -1056,7 +1324,13 @@ function App() {
   useReveal();
   const [orderItems, setOrderItems] = useState({});
   const [orderOpen, setOrderOpen] = useState(false);
+  const [isBumping, setIsBumping] = useState(false);
   const orderCount = getOrderCount(orderItems);
+
+  const triggerBump = () => {
+    setIsBumping(true);
+    setTimeout(() => setIsBumping(false), 400);
+  };
 
   const addItem = (item) => {
     setOrderItems((current) => ({
@@ -1066,6 +1340,7 @@ function App() {
         quantity: (current[item.name]?.quantity || 0) + 1,
       },
     }));
+    triggerBump();
   };
 
   const incrementItem = (name) => {
@@ -1083,6 +1358,7 @@ function App() {
         },
       };
     });
+    triggerBump();
   };
 
   const decrementItem = (name) => {
@@ -1134,7 +1410,7 @@ function App() {
 
   return (
     <>
-      <Navbar onOpenOrder={() => setOrderOpen(true)} />
+      <Navbar onOpenOrder={() => setOrderOpen(true)} isBumping={isBumping} />
       <main>
         <Hero onOpenOrder={() => setOrderOpen(true)} />
         <FeaturedDishes />
@@ -1147,6 +1423,7 @@ function App() {
           onOpenOrder={() => setOrderOpen(true)}
         />
         <BreakfastSection />
+        <GallerySection />
         <DessertGrid />
         <StorySection />
         <OrderSteps onOpenOrder={() => setOrderOpen(true)} />
@@ -1154,7 +1431,7 @@ function App() {
         <CTASection onOpenOrder={() => setOrderOpen(true)} />
       </main>
       <Footer />
-      <MobileOrderBar orderCount={orderCount} onOpenOrder={() => setOrderOpen(true)} />
+      <MobileOrderBar orderCount={orderCount} onOpenOrder={() => setOrderOpen(true)} isBumping={isBumping} />
       <OrderDrawer
         open={orderOpen}
         orderItems={orderItems}
