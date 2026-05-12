@@ -51,6 +51,16 @@ img {
   max-width: 100%;
 }
 
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
 ::selection {
   background: rgba(255, 179, 209, 0.34);
 }

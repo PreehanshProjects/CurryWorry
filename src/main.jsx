@@ -214,6 +214,47 @@ function buildWhatsAppMessage(orderItems, details) {
   ].join('\n');
 }
 
+function QuantityControl({ name, quantity, onIncrementItem, onDecrementItem, onSetItemQuantity, variant = 'dark' }) {
+  const inputClass = variant === 'light'
+    ? 'h-8 w-12 rounded-full border-0 bg-transparent text-center text-sm font-black text-brown outline-none transition focus:bg-cream'
+    : 'h-8 w-12 rounded-full border-0 bg-transparent text-center text-sm font-black text-curry outline-none transition focus:bg-white/12';
+  const decrementClass = variant === 'light'
+    ? 'grid h-8 w-8 place-items-center rounded-full text-brown transition hover:bg-cream'
+    : 'grid h-8 w-8 place-items-center rounded-full text-ivory transition hover:bg-white/12';
+  const incrementClass = 'grid h-8 w-8 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc]';
+
+  return (
+    <div className={`flex w-fit items-center rounded-full p-1 ${variant === 'light' ? 'border border-cocoa/10 bg-white' : 'border border-white/12 bg-white/[0.08]'}`}>
+      <button
+        type="button"
+        aria-label={`Remove one ${name}`}
+        onClick={() => onDecrementItem(name)}
+        className={decrementClass}
+      >
+        <Minus size={15} />
+      </button>
+      <input
+        type="number"
+        min="1"
+        inputMode="numeric"
+        aria-label={`${name} quantity`}
+        value={quantity}
+        onFocus={(event) => event.target.select()}
+        onChange={(event) => onSetItemQuantity(name, event.target.value)}
+        className={inputClass}
+      />
+      <button
+        type="button"
+        aria-label={`Add one more ${name}`}
+        onClick={() => onIncrementItem(name)}
+        className={incrementClass}
+      >
+        <Plus size={15} />
+      </button>
+    </div>
+  );
+}
+
 function WhatsAppIcon({ size = 18, className = '' }) {
   return (
     <svg
@@ -478,7 +519,7 @@ function FeaturedDishes() {
   );
 }
 
-function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem, onOpenOrder }) {
+function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem, onSetItemQuantity, onOpenOrder }) {
   const orderCount = getOrderCount(orderItems);
 
   return (
@@ -522,25 +563,13 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
                     <div className="grid gap-3 min-[420px]:flex min-[420px]:items-center min-[420px]:justify-between">
                       <span className="text-sm leading-5 text-ivory/58">{detail}</span>
                       {orderItems[item]?.quantity ? (
-                        <div className="flex w-fit items-center rounded-full border border-white/12 bg-white/[0.08] p-1">
-                          <button
-                            type="button"
-                            aria-label={`Remove one ${item}`}
-                            onClick={() => onDecrementItem(item)}
-                            className="grid h-8 w-8 place-items-center rounded-full text-ivory transition hover:bg-white/12"
-                          >
-                            <Minus size={15} />
-                          </button>
-                          <span className="min-w-8 text-center text-sm font-black text-curry">{orderItems[item].quantity}</span>
-                          <button
-                            type="button"
-                            aria-label={`Add one more ${item}`}
-                            onClick={() => onIncrementItem(item)}
-                            className="grid h-8 w-8 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc]"
-                          >
-                            <Plus size={15} />
-                          </button>
-                        </div>
+                        <QuantityControl
+                          name={item}
+                          quantity={orderItems[item].quantity}
+                          onIncrementItem={onIncrementItem}
+                          onDecrementItem={onDecrementItem}
+                          onSetItemQuantity={onSetItemQuantity}
+                        />
                       ) : (
                         <button
                           type="button"
@@ -778,7 +807,7 @@ function CTASection({ onOpenOrder }) {
   );
 }
 
-function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementItem, onClearOrder }) {
+function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementItem, onSetItemQuantity, onClearOrder }) {
   const [details, setDetails] = useState({
     name: '',
     orderType: 'pickup',
@@ -823,25 +852,14 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                       <p className="font-bold leading-5">{item.name}</p>
                       <p className="mt-1 text-xs font-black text-terracotta">{item.price}</p>
                     </div>
-                    <div className="flex w-fit items-center rounded-full border border-cocoa/10 bg-white p-1">
-                      <button
-                        type="button"
-                        aria-label={`Remove one ${item.name}`}
-                        onClick={() => onDecrementItem(item.name)}
-                        className="grid h-8 w-8 place-items-center rounded-full text-brown transition hover:bg-cream"
-                      >
-                        <Minus size={15} />
-                      </button>
-                      <span className="min-w-8 text-center text-sm font-black">{item.quantity}</span>
-                      <button
-                        type="button"
-                        aria-label={`Add one more ${item.name}`}
-                        onClick={() => onIncrementItem(item.name)}
-                        className="grid h-8 w-8 place-items-center rounded-full bg-curry text-brown transition hover:bg-[#ffc4dc]"
-                      >
-                        <Plus size={15} />
-                      </button>
-                    </div>
+                    <QuantityControl
+                      name={item.name}
+                      quantity={item.quantity}
+                      onIncrementItem={onIncrementItem}
+                      onDecrementItem={onDecrementItem}
+                      onSetItemQuantity={onSetItemQuantity}
+                      variant="light"
+                    />
                   </div>
                 ))}
               </div>
@@ -1058,6 +1076,30 @@ function App() {
     });
   };
 
+  const setItemQuantity = (name, value) => {
+    setOrderItems((current) => {
+      const item = current[name];
+      if (!item || value === '') {
+        return current;
+      }
+
+      const quantity = Math.max(0, Math.min(999, Number.parseInt(value, 10) || 0));
+      if (quantity <= 0) {
+        const next = { ...current };
+        delete next[name];
+        return next;
+      }
+
+      return {
+        ...current,
+        [name]: {
+          ...item,
+          quantity,
+        },
+      };
+    });
+  };
+
   return (
     <>
       <Navbar onOpenOrder={() => setOrderOpen(true)} />
@@ -1069,6 +1111,7 @@ function App() {
           onAddItem={addItem}
           onIncrementItem={incrementItem}
           onDecrementItem={decrementItem}
+          onSetItemQuantity={setItemQuantity}
           onOpenOrder={() => setOrderOpen(true)}
         />
         <BreakfastSection />
@@ -1086,6 +1129,7 @@ function App() {
         onClose={() => setOrderOpen(false)}
         onIncrementItem={incrementItem}
         onDecrementItem={decrementItem}
+        onSetItemQuantity={setItemQuantity}
         onClearOrder={() => setOrderItems({})}
       />
     </>
