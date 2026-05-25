@@ -15,7 +15,6 @@ import {
   Phone,
   Plus,
   Quote,
-  Search,
   Share2,
   ShoppingBag,
   Trash2,
@@ -109,19 +108,32 @@ const navItems = [
   ['Contact', '#contact'],
 ];
 
-const quickOrderItems = ['Farata', 'Rougaille', 'Cari poule', 'Touffe', 'Sweets'];
+const quickOrderItems = ['Farata', 'Cari Saumon', 'Butter Chicken', 'Touffe', 'Sweets'];
 
-const deliveryMinimum = 500;
+const spiceLevels = ['Normal', 'A little spicy', 'Very spicy'];
+
+const pickupMinimum = 150;
+const homeDeliveryMinimum = 400;
 
 const deliveryLocations = [
-  { id: 'vacoas-market', name: 'Vacoas Market', fee: 75, zone: 'Zone 1' },
-  { id: 'soflo', name: "So'Flo", fee: 75, zone: 'Zone 1' },
-  { id: 'phoenix-mall', name: 'Phoenix Mall', fee: 125, zone: 'Zone 2' },
-  { id: 'curepipe', name: 'Curepipe', fee: 125, zone: 'Zone 2' },
-  { id: 'trianon', name: 'Trianon', fee: 175, zone: 'Zone 3' },
-  { id: 'quatre-bornes', name: 'Quatre Bornes', fee: 175, zone: 'Zone 3' },
-  { id: 'ebene', name: 'Ebene', fee: 175, zone: 'Zone 3' },
-  { id: 'door', name: 'Door delivery', fee: null, zone: 'On request' },
+  { id: 'vacoas', name: 'Vacoas', fee: 25, zone: 'Pickup point', type: 'pickup' },
+  { id: 'soflo', name: "So'Flo", fee: 25, zone: 'Pickup point', type: 'pickup' },
+  { id: 'st-paul', name: 'St Paul', fee: 25, zone: 'Pickup point', type: 'pickup' },
+  { id: 'curepipe', name: 'Curepipe', fee: 50, zone: 'Pickup point', type: 'pickup' },
+  { id: 'phoenix-mall', name: 'Phoenix Mall', fee: 50, zone: 'Pickup point', type: 'pickup' },
+  { id: 'ebene', name: 'Ebene', fee: 75, zone: 'Pickup point', type: 'pickup' },
+  { id: 'trianon', name: 'Trianon', fee: 75, zone: 'Pickup point', type: 'pickup' },
+  { id: 'tribeca', name: 'Tribeca', fee: 75, zone: 'Pickup point', type: 'pickup' },
+  { id: 'home-vacoas', name: 'Vacoas', fee: 75, zone: 'Home delivery', type: 'home' },
+  { id: 'home-st-paul', name: 'St Paul', fee: 75, zone: 'Home delivery', type: 'home' },
+  { id: 'home-curepipe', name: 'Curepipe', fee: 100, zone: 'Home delivery', type: 'home' },
+  { id: 'home-phoenix', name: 'Phoenix', fee: 100, zone: 'Home delivery', type: 'home' },
+  { id: 'home-bonne-terre', name: 'Bonne Terre', fee: 100, zone: 'Home delivery', type: 'home' },
+  { id: 'home-la-marie', name: 'La Marie', fee: 100, zone: 'Home delivery', type: 'home' },
+  { id: 'home-henrietta', name: 'Henrietta', fee: 100, zone: 'Home delivery', type: 'home' },
+  { id: 'home-quatre-bornes', name: 'Quatre Bornes', fee: 125, zone: 'Home delivery', type: 'home' },
+  { id: 'home-solferino', name: 'Solferino', fee: 125, zone: 'Home delivery', type: 'home' },
+  { id: 'home-st-pierre', name: 'St Pierre', fee: 175, zone: 'Home delivery', type: 'home' },
 ];
 
 const timeWindows = [
@@ -139,26 +151,23 @@ const galleryFullImages = galleryItems.map((item) => item.full);
 
 const featuredDishes = [
   {
-    name: 'Farata ek Rougaille Touni',
+    name: 'Farata avec Cari Saumon',
     badge: 'Most ordered',
     spice: 'Medium spice',
-    price: 'From Rs 160',
-    image: '/assets/optimized/farata-rougaille-touni.jpg',
-    description: 'Soft handmade farata served with rich rougaille touni, fresh herbs, and a proper homemade finish.',
+    image: '/assets/optimized/farata-cari-saumon.png',
+    description: 'Soft handmade farata served with rich cari saumon, a proper homemade finish.',
   },
   {
-    name: 'Cari Poule Masala',
+    name: 'Butter Chicken',
     badge: 'Family favorite',
     spice: 'Warm spice',
-    price: 'Family portions',
     image: '/assets/optimized/cari-poule-masala.jpg',
-    description: 'Chicken cooked slowly with masala, ginger, garlic, and a sauce that tastes like Sunday lunch.',
+    description: 'Smooth, rich, and comforting — a family favorite for any occasion.',
   },
   {
     name: 'Giromon Touffe',
     badge: 'Vegetarian',
     spice: 'Gentle',
-    price: 'Side portions',
     image: '/assets/optimized/giromon-touffe.jpg',
     description: 'Pumpkin softened with onion, herbs, and Mauritian seasoning. Simple, sweet, and comforting.',
   },
@@ -167,7 +176,7 @@ const featuredDishes = [
 const menuSections = [
   {
     title: 'Breakfast',
-    note: 'Available for morning preorders, takeaway, or fixed pickup-point delivery.',
+    note: 'Available on Fridays and weekends only.',
     items: [
       ['Pancakes', 'From Rs 75', 'Nature, chocolat, vanille, amande, or fruits rouges', false],
       ['Muffins', 'From Rs 45', 'Chocolat, amande, or vanille', false],
@@ -177,34 +186,42 @@ const menuSections = [
     ],
   },
   {
-    title: 'Breads & Sides',
-    note: 'Order by piece or tray. Best paired with rougaille, curry, and family portions.',
+    title: 'Breads',
+    note: 'All packs freshly made. Best paired with curry or chutney.',
     items: [
-      ['Farata', 'Rs 25 each', 'Minimum 6 recommended', true],
-      ['Roti', 'Rs 20 each', 'Minimum 6 recommended', true],
-      ['Puri', 'Rs 20 each', 'Breakfast or curry side', true],
-      ['Gro Pois', 'From Rs 90', 'Small or family portion', true],
-      ['Satini', 'From Rs 85', 'Confirm spice level', true],
+      ['Plain Farata', 'Rs 65 (pack of 6)', 'Soft handmade farata', true],
+      ['Aloo Farata', 'Rs 100 (pack of 6)', 'Stuffed with spiced potato', true],
+      ['Garlic Cheese Farata', 'Rs 125 (pack of 6)', 'Garlic and cheese stuffed', false],
+      ['Puri', 'Rs 75 (pack of 10)', 'Light and crispy', true],
     ],
   },
   {
-    title: 'Curries & Rougaille',
-    note: 'Cooked fresh for lunch, dinner, or preorder family meals.',
+    title: 'Curries',
+    note: 'Cooked fresh. All prices are for 2 pax.',
     items: [
-      ['Pilchard Masala avek Ti Pois', 'From Rs 160', 'Lunch box or portion', false],
-      ['Rougaille Touni', 'From Rs 145', 'Good with farata', true],
-      ['Rougaille Soya', 'From Rs 120', 'Vegetarian option', true],
-      ['Cari Poule Masala', 'From Rs 185', 'Family portions available', false],
-      ['Saute Lavyann Mouton', 'Preorder', 'Order in advance', false],
+      ['Cari Saumon', 'Rs 160', 'Rich salmon curry', false],
+      ['Fish Vindaloo', 'Rs 230', 'Tangy and spiced', false],
+      ['Fish Curry & Eggplant', 'Rs 275', 'Fish with aubergine', false],
+      ['Chicken Curry with Coconut Milk', 'Rs 275', 'Creamy coconut base', false],
+      ['Butter Chicken', 'Rs 300', 'Smooth and rich', false],
+      ['Lamb Curry, Potatoes & Green Peas', 'Rs 350', 'Hearty and filling', false],
+    ],
+  },
+  {
+    title: 'Chutney',
+    note: 'Traditional accompaniments.',
+    items: [
+      ['Bomli Chutney', 'Rs 50', 'Classic Mauritian chutney', false],
+      ['Cevrette Chutney', 'Rs 50', 'Dried shrimp chutney', false],
     ],
   },
   {
     title: 'Vegetables & Touffe',
-    note: 'Homemade vegetable sides for balanced family orders.',
+    note: 'Homemade vegetable sides. All prices are for 2 pax.',
     items: [
-      ['Giromon Touffe', 'From Rs 90', 'Mild and sweet', true],
-      ['Brede Touffe', 'From Rs 90', 'Daily availability', true],
-      ['Sousou Touffe', 'From Rs 90', 'Daily availability', true],
+      ['Giromon Touffe', 'Rs 100', 'Mild and sweet', true],
+      ['Brede Touffe', 'Rs 80', 'Daily availability', true],
+      ['Sousou Touffe', 'Rs 75', 'Daily availability', true],
     ],
   },
 ];
@@ -271,17 +288,18 @@ const orderSteps = [
 ];
 
 const orderFacts = [
-  ['Pickup', 'Vacoas, free'],
-  ['Hours', 'Mon-Sat, 08:00-20:00'],
-  ['Delivery', 'Pickup points from Rs 75, minimum order Rs 500'],
+  ['In-store pickup', 'Grannum Street, Vacoas — free, no minimum'],
+  ['Hours', 'In-store: Mon-Sat. Deliveries: Fri-Sun'],
+  ['Pickup points', 'Rs 25–75 depending on location, minimum order Rs 150'],
+  ['Home delivery', 'Rs 75–175 depending on area, minimum order Rs 400'],
   ['Payment', `Juice on ${phoneDisplay} or cash on delivery`],
   ['Final total', 'Confirmed on WhatsApp before cooking'],
 ];
 
 const orderConfidenceNotes = [
-  ['Portions', 'Lunch boxes, small sides, and family portions are available depending on the dish.'],
+  ['Portions', 'All curry and touffe prices are for 2 pax. Breads are sold by pack.'],
   ['Minimums', 'Farata, roti, and puri are best ordered from 6 pieces; sweets and trays can be confirmed by request.'],
-  ['Delivery fee', 'Pickup-point delivery starts at Rs 75. Door delivery is confirmed on WhatsApp.'],
+  ['Delivery', 'In-store pickup at Grannum Street, Vacoas is free with no minimum. Pickup points from Rs 25 (min Rs 150). Home delivery from Rs 75 (min Rs 400). Deliveries available Fri-Sun only.'],
 ];
 
 const paymentOptions = [
@@ -346,7 +364,7 @@ function formatTimeChoice(details) {
 function buildWhatsAppMessage(orderItems, details) {
   const lines = getOrderLines(orderItems);
   const itemText = lines.length
-    ? lines.map((item) => `- ${item.quantity} x ${item.name} (${item.price})`).join('\n')
+    ? lines.map((item) => `- ${item.quantity} x ${item.name} (${item.price})${item.spice ? ` [${item.spice}]` : ''}`).join('\n')
     : '- I would like to order from the menu';
 
   const customerName = details.name.trim() || '[Your name]';
@@ -357,9 +375,9 @@ function buildWhatsAppMessage(orderItems, details) {
     ? deliveryLocation.name
     : 'Vacoas pickup';
   const deliveryFee = details.orderType === 'delivery'
-    ? (deliveryLocation.fee === null ? 'From Rs 200, confirm on WhatsApp' : `Rs ${deliveryLocation.fee}`)
+    ? `Rs ${deliveryLocation.fee}`
     : 'Free';
-  const area = details.orderType === 'delivery' && deliveryLocation.id === 'door'
+  const area = details.orderType === 'delivery' && deliveryLocation.type === 'home'
     ? (details.area.trim() || '[Delivery address / area]')
     : (details.area.trim() || 'No extra area note');
   const note = details.note.trim() || 'No special note';
@@ -521,13 +539,14 @@ function Navbar({ onOpenOrder, isBumping }) {
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenOrder}
-          className={`hidden items-center gap-2 rounded-full bg-curry px-6 py-3 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none lg:inline-flex ${isBumping ? 'animate-cart-pulse' : ''}`}
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden items-center gap-2 rounded-full bg-curry px-6 py-3 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none lg:inline-flex"
         >
           <WhatsAppIcon size={17} /> WhatsApp
-        </button>
+        </a>
 
         <button
           aria-label="Toggle navigation"
@@ -551,16 +570,15 @@ function Navbar({ onOpenOrder, isBumping }) {
                 {label}
               </a>
             ))}
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                onOpenOrder();
-              }}
-              className={`mt-1 flex items-center justify-center gap-2.5 rounded-2xl bg-terracotta px-5 py-4 font-black text-ivory transition active:scale-[0.98] tap-highlight-none ${isBumping ? 'animate-cart-pulse' : ''}`}
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="mt-1 flex items-center justify-center gap-2.5 rounded-2xl bg-terracotta px-5 py-4 font-black text-ivory transition active:scale-[0.98] tap-highlight-none"
             >
-              <WhatsAppIcon size={20} /> WhatsApp Order
-            </button>
+              <WhatsAppIcon size={20} /> WhatsApp
+            </a>
           </div>
         </div>
       )}
@@ -612,15 +630,16 @@ function Hero({ onOpenOrder }) {
           </p>
           <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-row sm:gap-4">
             <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-13 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-3.5 text-sm font-black leading-none text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:min-h-14 sm:w-auto sm:px-9 sm:py-4 sm:text-base">
+              <ShoppingBag size={20} className="shrink-0" />
+              <span>Start Order</span>
+            </button>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-13 w-full items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-6 py-3.5 text-sm font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:min-h-14 sm:w-auto sm:px-8 sm:py-4 sm:text-base">
               <WhatsAppIcon size={20} className="shrink-0 transition group-hover:rotate-6" />
-              <span>WhatsApp Order</span>
-            </button>            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
+              <span>WhatsApp</span>
+            </a>
+            <a href={phoneHref} className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
               <Phone size={18} className="shrink-0" />
               <span>Call {phoneDisplay}</span>
-            </a>
-            <a href="#menu" className="hidden min-h-14 w-auto items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-8 py-4 font-bold text-ivory backdrop-blur-md transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:inline-flex">
-              <span>View Menu</span>
-              <ArrowRight size={18} className="shrink-0" />
             </a>
           </div>
 
@@ -654,8 +673,7 @@ function Hero({ onOpenOrder }) {
             />
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-curry">Today from the kitchen</p>
-              <h3 className="mt-2 font-display text-2xl font-semibold">Farata ek Rougaille Touni</h3>
-              <p className="mt-1 text-sm text-ivory/70">Rolled fresh, packed warm, ready to share.</p>
+              <h3 className="mt-2 font-display text-2xl font-semibold">Farata</h3>
             </div>
           </div>
         </div>
@@ -681,8 +699,8 @@ function FoodCard({ dish }) {
           <h3 className="font-display text-2xl font-semibold text-brown sm:text-3xl">{dish.name}</h3>
           <span className="w-fit shrink-0 rounded-full bg-leaf/15 px-3.5 py-1.5 text-[0.65rem] font-black uppercase tracking-wider text-leaf">{dish.spice}</span>
         </div>
-        <p className="mt-4 text-sm font-black text-terracotta sm:text-base">{dish.price}</p>
-        <p className="mt-5 text-sm leading-8 text-cocoa/74 sm:text-base">{dish.description}</p>
+        {dish.price && <p className="mt-4 text-sm font-black text-terracotta sm:text-base">{dish.price}</p>}
+        <p className="mt-4 text-sm leading-8 text-cocoa/74 sm:text-base">{dish.description}</p>
       </div>
     </article>
   );
@@ -707,97 +725,127 @@ function FeaturedDishes() {
   );
 }
 
-function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem, onSetItemQuantity, onOpenOrder }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [vegOnly, setVegOnly] = useState(false);
+function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem, onSetItemQuantity, onSetItemSpice, onOpenOrder }) {
   const orderCount = getOrderCount(orderItems);
 
-  const filteredSections = menuSections.map(section => {
-    const filteredItems = section.items.filter(item => {
-      const matchesSearch = item[0].toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           item[2].toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesVeg = !vegOnly || item[3] === true;
-      return matchesSearch && matchesVeg;
-    });
-
-    if (filteredItems.length === 0) return null;
-
-    return { ...section, items: filteredItems };
-  }).filter(Boolean);
+  const filteredSections = menuSections;
 
   return (
     <section id="menu" className="section warm-texture bg-brown text-ivory">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <SectionHeader
           light
-          eyebrow="Menu Guide"
-          title="Pick dishes, send quantities, confirm the time."
-          text="Use this as a quick ordering list. Prices are starting guides; pickup-point delivery starts at Rs 75 and the final total is confirmed on WhatsApp before cooking starts."
+          eyebrow="Menu"
+          title="Choose your dishes, we handle the rest."
+          text="Curry and touffe prices are for 2 pax. Final total confirmed on WhatsApp before we start cooking."
         />
-        
-        {/* Search & Simplified Filters */}
+
         <div data-reveal className="mx-auto mt-10 max-w-4xl">
-          <div className="grid gap-4 sm:flex sm:items-center">
-            <div className="relative grow">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-ivory/40" size={20} />
-              <input 
-                type="text"
-                placeholder="Search dishes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-14 pr-6 text-sm font-semibold text-ivory outline-none transition focus:bg-white/10 focus:ring-4 focus:ring-curry/10"
-              />
-            </div>
-            
-            <button
-              onClick={() => setVegOnly(!vegOnly)}
-              className={`flex h-14 items-center gap-3 rounded-2xl border px-6 transition-all active:scale-95 tap-highlight-none sm:shrink-0 ${vegOnly ? 'bg-leaf/20 border-leaf text-leaf shadow-lg shadow-leaf/10' : 'bg-white/5 border-white/10 text-ivory/60 hover:bg-white/10'}`}
-            >
-              <Leaf size={20} className={vegOnly ? 'animate-pulse' : ''} />
-              <span className="text-sm font-bold">Veg Only</span>
-            </button>
+          <div className="flex items-center gap-4 overflow-x-auto pb-2 sm:justify-center">
+            {[
+              { step: '1', label: 'Choose', desc: 'Pick dishes & quantities', icon: <ShoppingBag size={18} /> },
+              { step: '2', label: 'Confirm', desc: 'Time, place & payment', icon: <CalendarCheck size={18} /> },
+              { step: '3', label: 'Done', desc: 'Price confirmed first', icon: <CheckCircle2 size={18} /> },
+            ].map((item, i) => (
+              <React.Fragment key={item.step}>
+                {i > 0 && <div className="hidden h-px w-8 shrink-0 bg-ivory/20 sm:block" />}
+                <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 sm:px-5 sm:py-4">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-curry/20 text-curry">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <span className="block text-sm font-bold text-ivory">{item.label}</span>
+                    <span className="block text-xs text-ivory/50">{item.desc}</span>
+                  </div>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            {orderConfidenceNotes.map(([label, text]) => (
+              <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.04] px-5 py-4">
+                <span className="block text-[0.65rem] font-black uppercase tracking-widest text-curry/80">{label}</span>
+                <span className="mt-2 block text-sm leading-6 text-ivory/60">{text}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div data-reveal className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-[1.2rem] border border-curry/22 bg-curry/12 p-3 text-sm font-semibold text-ivory/82 sm:grid-cols-3 sm:p-4">
-          {[
-            ['1. Choose', 'List dishes and quantities'],
-            ['2. Confirm', 'Portions, time, and place'],
-            ['3. Pay total', 'Final price confirmed first'],
-          ].map(([label, text]) => (
-            <div key={label} className="rounded-xl bg-white/[0.07] px-4 py-3">
-              <span className="block font-black text-curry">{label}</span>
-              <span className="mt-1 block">{text}</span>
-            </div>
-          ))}
-        </div>
-
-        <div data-reveal className="mx-auto mt-4 grid max-w-4xl gap-3 rounded-[1.2rem] border border-white/10 bg-white/[0.06] p-3 text-sm text-ivory/74 sm:grid-cols-3 sm:p-4">
-          {orderConfidenceNotes.map(([label, text]) => (
-            <div key={label} className="rounded-xl bg-brown/20 px-4 py-3">
-              <span className="block text-[0.65rem] font-black uppercase tracking-widest text-curry">{label}</span>
-              <span className="mt-1.5 block leading-6">{text}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-7 grid gap-4 sm:mt-9 md:grid-cols-2 xl:grid-cols-4">
-          {filteredSections.map((section) => (
-            <article data-reveal key={section.title} className="rounded-[1.1rem] border border-white/10 bg-white/[0.07] p-4 backdrop-blur sm:p-5">
-              <div className="border-b border-white/10 pb-4">
+        <div className="mt-7 grid gap-5 sm:mt-9 md:grid-cols-2 lg:grid-cols-3">
+          {filteredSections.slice(0, 3).map((section) => (
+            <article data-reveal key={section.title} className="rounded-[1.4rem] border border-white/10 bg-white/[0.07] p-5 backdrop-blur sm:p-7">
+              <div className="border-b border-white/10 pb-5">
                 <h3 className="font-display text-2xl font-semibold text-ivory sm:text-3xl">{section.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-ivory/62">{section.note}</p>
               </div>
               <ul className="divide-y divide-white/9">
                 {section.items.map(([item, guide, detail]) => (
-                  <li key={item} className="grid gap-2 py-3.5 sm:py-4">
-                    <div className="grid gap-2 min-[420px]:flex min-[420px]:items-start min-[420px]:justify-between min-[420px]:gap-3">
+                  <li key={item} className="grid gap-2 py-4 sm:py-5">
+                    <div className="flex items-start justify-between gap-3">
                       <span className="font-semibold leading-6 text-ivory">{item}</span>
-                      <span className="w-fit shrink-0 rounded-full bg-curry/14 px-3 py-1 text-xs font-black text-curry">
+                      <span className="w-fit shrink-0 rounded-full bg-[#A8BBA3]/15 px-3 py-1 text-xs font-black text-[#A8BBA3]">
                         {guide}
                       </span>
                     </div>
-                    <div className="grid gap-3 min-[420px]:flex min-[420px]:items-center min-[420px]:justify-between">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm leading-5 text-ivory/58">{detail}</span>
+                      {orderItems[item]?.quantity ? (
+                        <QuantityControl
+                          name={item}
+                          quantity={orderItems[item].quantity}
+                          onIncrementItem={onIncrementItem}
+                          onDecrementItem={onDecrementItem}
+                          onSetItemQuantity={onSetItemQuantity}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onAddItem({ name: item, price: guide, detail, category: section.title })}
+                          className="inline-flex min-h-11 w-fit items-center justify-center gap-2 rounded-full border border-curry/25 bg-curry/12 px-5 py-2.5 text-xs font-black text-curry transition hover:bg-curry hover:text-brown active:scale-95 tap-highlight-none"
+                        >
+                          <Plus size={16} /> Add
+                        </button>
+                      )}
+                    </div>
+                    {section.title === 'Curries' && orderItems[item]?.quantity > 0 && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[0.65rem] font-bold uppercase tracking-wider text-ivory/40">Spice:</span>
+                        {spiceLevels.map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => onSetItemSpice(item, level)}
+                            className={`rounded-full px-3 py-1 text-[0.65rem] font-bold transition active:scale-95 tap-highlight-none ${orderItems[item]?.spice === level ? 'bg-terracotta text-ivory' : 'bg-white/10 text-ivory/50 hover:bg-white/15'}`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-5 md:grid-cols-2 lg:max-w-4xl lg:mx-auto">
+          {filteredSections.slice(3).map((section) => (
+            <article data-reveal key={section.title} className="rounded-[1.4rem] border border-white/10 bg-white/[0.07] p-5 backdrop-blur sm:p-7">
+              <div className="border-b border-white/10 pb-5">
+                <h3 className="font-display text-2xl font-semibold text-ivory sm:text-3xl">{section.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-ivory/62">{section.note}</p>
+              </div>
+              <ul className="divide-y divide-white/9">
+                {section.items.map(([item, guide, detail]) => (
+                  <li key={item} className="grid gap-2 py-4 sm:py-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="font-semibold leading-6 text-ivory">{item}</span>
+                      <span className="w-fit shrink-0 rounded-full bg-[#A8BBA3]/15 px-3 py-1 text-xs font-black text-[#A8BBA3]">
+                        {guide}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
                       <span className="text-sm leading-5 text-ivory/58">{detail}</span>
                       {orderItems[item]?.quantity ? (
                         <QuantityControl
@@ -826,7 +874,7 @@ function MenuCategory({ orderItems, onAddItem, onIncrementItem, onDecrementItem,
         
         {filteredSections.length === 0 && (
           <div className="mt-20 text-center">
-            <p className="text-xl font-semibold text-ivory/40">No dishes found matching your search.</p>
+            <p className="text-xl font-semibold text-ivory/40">No dishes found.</p>
           </div>
         )}
 
@@ -854,7 +902,7 @@ function BreakfastSection() {
             align="left"
             eyebrow="Breakfast"
             title="Soft mornings, warm pancakes, easy comfort."
-            text="Breakfast is made for relaxed island mornings: pancakes, muffins, omelettes, smoothies, and milkshakes that feel simple, fresh, and homemade."
+            text="Breakfast is made for relaxed island mornings: pancakes, muffins, omelettes, smoothies, and milkshakes that feel simple, fresh, and homemade. Available on Fridays and weekends only."
           />
           <div data-reveal className="mt-10 overflow-hidden rounded-[2rem] shadow-warm">
             <img
@@ -1032,11 +1080,14 @@ function OrderSteps({ onOpenOrder }) {
         <div className="mt-10 grid gap-5 sm:mt-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
           <div data-reveal className="rounded-[2rem] bg-brown p-7 text-ivory shadow-warm sm:p-10">
             <p className="font-display text-4xl font-semibold">Ready to order?</p>
-            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, time window, and pickup point. Delivery is available from Rs 75 with a Rs 500 minimum order; door delivery is confirmed manually on WhatsApp.</p>
+            <p className="mt-4 text-[0.95rem] leading-8 text-ivory/68">Send your dish list, quantity, time window, and delivery option. In-store pickup at Grannum Street, Vacoas is free. Pickup points from Rs 25 (min Rs 150). Home delivery from Rs 75 (min Rs 400). Deliveries: Fri-Sun only.</p>
             <div className="mt-8 grid gap-4">
               <button type="button" onClick={onOpenOrder} className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-3.5 text-sm font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-lg shadow-curry/10 sm:min-h-14 sm:px-8 sm:py-4 sm:text-base">
-                <WhatsAppIcon size={20} /> WhatsApp Order
+                <ShoppingBag size={20} /> Start Order
               </button>
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-6 py-3.5 text-sm font-bold text-ivory transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:min-h-14 sm:px-8 sm:py-4 sm:text-base">
+                <WhatsAppIcon size={20} /> WhatsApp
+              </a>
               <a href={phoneHref} className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full border border-white/16 bg-white/10 px-6 py-3.5 text-center text-sm font-bold text-ivory transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:min-h-14 sm:px-8 sm:py-4 sm:text-base">
                 <Phone size={19} className="shrink-0" /> Call {phoneDisplay}
               </a>
@@ -1052,10 +1103,20 @@ function OrderSteps({ onOpenOrder }) {
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
           <div data-reveal className="rounded-[1.6rem] border border-cocoa/10 bg-cream p-7 shadow-soft sm:col-span-2 sm:p-8">
-            <h3 className="font-display text-2xl font-semibold text-brown sm:text-3xl">Delivery pickup points</h3>
-            <p className="mt-4 text-sm leading-8 text-cocoa/72 sm:text-base">Minimum order for delivery is Rs {deliveryMinimum}. Door delivery starts from Rs 200 and is confirmed on WhatsApp.</p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {deliveryLocations.filter((location) => location.fee !== null).map((location) => (
+            <h3 className="font-display text-2xl font-semibold text-brown sm:text-3xl">Delivery options</h3>
+            <p className="mt-4 text-sm leading-8 text-cocoa/72 sm:text-base">In-store pickup at Grannum Street, Vacoas is free with no minimum. Deliveries available Fri-Sun only.</p>
+            <h4 className="mt-6 text-xs font-black uppercase tracking-widest text-cocoa/50">Pickup points — min Rs {pickupMinimum}</h4>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {deliveryLocations.filter((location) => location.type === 'pickup').map((location) => (
+                <div key={location.id} className="flex items-center justify-between gap-4 rounded-2xl bg-ivory px-4 py-3 text-sm shadow-sm">
+                  <span className="font-bold text-brown">{location.name}</span>
+                  <span className="shrink-0 rounded-full bg-curry/30 px-3 py-1 text-xs font-black text-brown">Rs {location.fee}</span>
+                </div>
+              ))}
+            </div>
+            <h4 className="mt-6 text-xs font-black uppercase tracking-widest text-cocoa/50">Home delivery — min Rs {homeDeliveryMinimum}</h4>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {deliveryLocations.filter((location) => location.type === 'home').map((location) => (
                 <div key={location.id} className="flex items-center justify-between gap-4 rounded-2xl bg-ivory px-4 py-3 text-sm shadow-sm">
                   <span className="font-bold text-brown">{location.name}</span>
                   <span className="shrink-0 rounded-full bg-curry/30 px-3 py-1 text-xs font-black text-brown">Rs {location.fee}</span>
@@ -1125,8 +1186,11 @@ function CTASection({ onOpenOrder }) {
           </p>
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
             <button type="button" onClick={onOpenOrder} className="group inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-curry px-6 py-4 text-base font-black text-brown transition hover:bg-[#ffc4dc] active:scale-95 tap-highlight-none shadow-xl shadow-curry/15 sm:min-h-15 sm:w-auto sm:gap-3 sm:px-10 sm:py-5 sm:text-lg">
-              <WhatsAppIcon size={20} className="shrink-0 transition group-hover:rotate-6 sm:size-[22px]" /> <span>Order Now</span>
+              <ShoppingBag size={20} className="shrink-0 sm:size-[22px]" /> <span>Start Order</span>
             </button>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full border border-white/18 bg-white/10 px-6 py-4 text-base font-bold text-ivory transition hover:bg-white/16 active:scale-95 tap-highlight-none sm:min-h-15 sm:w-auto sm:gap-3 sm:px-10 sm:py-5 sm:text-lg">
+              <WhatsAppIcon size={20} className="shrink-0 transition group-hover:rotate-6 sm:size-[22px]" /> <span>WhatsApp</span>
+            </a>
           </div>
         </div>
       </div>
@@ -1143,7 +1207,7 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
     paymentMethod: 'juice',
     timeWindow: 'lunch',
     time: '',
-    deliveryLocation: 'vacoas-market',
+    deliveryLocation: 'vacoas',
     area: '',
     note: '',
   });
@@ -1153,11 +1217,10 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
   const orderCount = getOrderCount(orderItems);
   const estimatedSubtotal = getEstimatedSubtotal(orderItems);
   const selectedDeliveryLocation = getSelectedDeliveryLocation(details.deliveryLocation);
-  const selectedDeliveryFeeText = selectedDeliveryLocation.fee === null
-    ? 'From Rs 200, confirm on WhatsApp'
-    : `Rs ${selectedDeliveryLocation.fee}`;
+  const selectedDeliveryFeeText = `Rs ${selectedDeliveryLocation.fee}`;
   const needsCustomTime = details.timeWindow === 'custom';
-  const needsDoorArea = details.orderType === 'delivery' && selectedDeliveryLocation.id === 'door';
+  const needsDoorArea = details.orderType === 'delivery' && selectedDeliveryLocation.type === 'home';
+  const deliveryMinimum = selectedDeliveryLocation.type === 'home' ? homeDeliveryMinimum : pickupMinimum;
   const deliveryBelowMinimum = details.orderType === 'delivery' && estimatedSubtotal > 0 && estimatedSubtotal < deliveryMinimum;
   const hasRequiredDetails = Boolean(
     details.name.trim()
@@ -1306,7 +1369,7 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                         <div key={item.name} className="grid gap-4 rounded-[1.35rem] border border-cocoa/8 bg-cream/45 p-4 min-[520px]:grid-cols-[1fr_auto] min-[520px]:items-center">
                           <div>
                             <p className="font-bold leading-tight text-brown sm:text-lg">{item.name}</p>
-                            <p className="mt-1.5 text-xs font-black uppercase tracking-wider text-terracotta">{item.price}</p>
+                            <p className="mt-1.5 text-xs font-black uppercase tracking-wider text-terracotta">{item.price}{item.spice ? ` · ${item.spice}` : ''}</p>
                           </div>
                           <QuantityControl
                             name={item.name}
@@ -1453,8 +1516,9 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                       </div>
                     </div>
 
+                    <p className="mb-2 text-[0.65rem] font-black uppercase tracking-widest text-cocoa/50">Pickup points — min Rs {pickupMinimum}</p>
                     <div className="grid gap-2 sm:grid-cols-2">
-                      {deliveryLocations.map((location) => (
+                      {deliveryLocations.filter((location) => location.type === 'pickup').map((location) => (
                         <button
                           key={location.id}
                           type="button"
@@ -1463,7 +1527,23 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                         >
                           <span className="block text-sm font-black">{location.name}</span>
                           <span className={`mt-1 block text-xs font-semibold leading-5 ${details.deliveryLocation === location.id ? 'text-ivory/70' : 'text-cocoa/54'}`}>
-                            {location.fee === null ? 'From Rs 200, confirm on WhatsApp' : `${location.zone} - Rs ${location.fee}`}
+                            Rs {location.fee}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-4 mb-2 text-[0.65rem] font-black uppercase tracking-widest text-cocoa/50">Home delivery — min Rs {homeDeliveryMinimum}</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {deliveryLocations.filter((location) => location.type === 'home').map((location) => (
+                        <button
+                          key={location.id}
+                          type="button"
+                          onClick={() => setDetails((detailsValue) => ({ ...detailsValue, deliveryLocation: location.id }))}
+                          className={`rounded-2xl border px-4 py-3 text-left transition-all active:scale-95 tap-highlight-none ${details.deliveryLocation === location.id ? 'border-brown bg-brown text-ivory shadow-lg' : 'border-cocoa/10 bg-ivory text-cocoa/70 hover:bg-cream'}`}
+                        >
+                          <span className="block text-sm font-black">{location.name}</span>
+                          <span className={`mt-1 block text-xs font-semibold leading-5 ${details.deliveryLocation === location.id ? 'text-ivory/70' : 'text-cocoa/54'}`}>
+                            Rs {location.fee}
                           </span>
                         </button>
                       ))}
@@ -1479,7 +1559,7 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
 
                 {needsDoorArea && (
                   <label className="grid gap-2 rounded-[1.8rem] border border-cocoa/10 bg-white p-4 text-[0.68rem] font-black uppercase tracking-widest text-cocoa/50 shadow-sm sm:p-5">
-                    <span>Door delivery area <span className="text-terracotta">*</span></span>
+                    <span>Home delivery area <span className="text-terracotta">*</span></span>
                     <input
                       id="order-delivery-area"
                       required
@@ -1490,7 +1570,7 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                       className="min-h-13 rounded-2xl border border-cocoa/12 bg-ivory px-5 text-sm font-semibold text-brown outline-none transition focus:border-terracotta focus:ring-4 focus:ring-terracotta/5"
                     />
                     {showRequiredErrors && !details.area.trim() && (
-                      <span className="text-xs normal-case tracking-normal text-terracotta">Door delivery area is required.</span>
+                      <span className="text-xs normal-case tracking-normal text-terracotta">Home delivery area is required.</span>
                     )}
                   </label>
                 )}
@@ -1558,7 +1638,7 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
                         <div key={item.name} className="flex items-start justify-between gap-4 rounded-2xl bg-cream/60 p-4">
                           <div>
                             <p className="font-bold text-brown">{item.name}</p>
-                            <p className="mt-1 text-xs font-black uppercase tracking-wider text-terracotta">{item.price}</p>
+                            <p className="mt-1 text-xs font-black uppercase tracking-wider text-terracotta">{item.price}{item.spice ? ` · ${item.spice}` : ''}</p>
                           </div>
                           <span className="shrink-0 rounded-full bg-white px-3 py-1 text-sm font-black text-brown">x{item.quantity}</span>
                         </div>
@@ -1673,9 +1753,12 @@ function OrderDrawer({ open, orderItems, onClose, onIncrementItem, onDecrementIt
 function MobileOrderBar({ orderCount, onOpenOrder, isBumping }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-brown/10 bg-ivory/96 px-3 pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-14px_40px_rgba(58,58,58,0.12)] backdrop-blur-xl md:hidden">
-      <div className="mx-auto grid max-w-md grid-cols-[0.85fr_0.85fr_1.3fr] gap-2.5">
+      <div className="mx-auto grid max-w-md grid-cols-[0.85fr_0.85fr_0.85fr_1.3fr] gap-2.5">
         <a href="#menu" className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown transition active:scale-95 tap-highlight-none">
           <ArrowRight size={17} /> Menu
+        </a>
+        <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown transition active:scale-95 tap-highlight-none">
+          <WhatsAppIcon size={17} /> Chat
         </a>
         <a href={phoneHref} className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-full border border-cocoa/12 bg-white px-2 text-xs font-black text-brown transition active:scale-95 tap-highlight-none">
           <Phone size={17} /> Call
@@ -1690,7 +1773,7 @@ function MobileOrderBar({ orderCount, onOpenOrder, isBumping }) {
               +1
             </span>
           )}
-          {orderCount ? <ShoppingBag size={18} /> : <WhatsAppIcon size={18} />}
+          <ShoppingBag size={18} />
           <span className="truncate">
             {orderCount ? `${orderCount} item${orderCount === 1 ? '' : 's'}` : 'Order'}
           </span>
@@ -1765,9 +1848,18 @@ function App() {
       [item.name]: {
         ...item,
         quantity: (current[item.name]?.quantity || 0) + 1,
+        spice: item.category === 'Curries' ? (current[item.name]?.spice || 'Normal') : undefined,
       },
     }));
     triggerBump();
+  };
+
+  const setItemSpice = (name, spice) => {
+    setOrderItems((current) => {
+      const item = current[name];
+      if (!item) return current;
+      return { ...current, [name]: { ...item, spice } };
+    });
   };
 
   const incrementItem = (name) => {
@@ -1835,11 +1927,19 @@ function App() {
     });
   };
 
+  const handleOpenOrder = () => {
+    if (orderCount > 0) {
+      setOrderOpen(true);
+    } else {
+      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
-      <Navbar onOpenOrder={() => setOrderOpen(true)} isBumping={isBumping} />
+      <Navbar onOpenOrder={handleOpenOrder} isBumping={isBumping} />
       <main>
-        <Hero onOpenOrder={() => setOrderOpen(true)} />
+        <Hero onOpenOrder={handleOpenOrder} />
         <FeaturedDishes />
         <MenuCategory
           orderItems={orderItems}
@@ -1847,18 +1947,19 @@ function App() {
           onIncrementItem={incrementItem}
           onDecrementItem={decrementItem}
           onSetItemQuantity={setItemQuantity}
-          onOpenOrder={() => setOrderOpen(true)}
+          onSetItemSpice={setItemSpice}
+          onOpenOrder={handleOpenOrder}
         />
         <BreakfastSection />
         <GallerySection />
         <DessertGrid />
         <StorySection />
-        <OrderSteps onOpenOrder={() => setOrderOpen(true)} />
+        <OrderSteps onOpenOrder={handleOpenOrder} />
         <Testimonials />
-        <CTASection onOpenOrder={() => setOrderOpen(true)} />
+        <CTASection onOpenOrder={handleOpenOrder} />
       </main>
       <Footer />
-      <MobileOrderBar orderCount={orderCount} onOpenOrder={() => setOrderOpen(true)} isBumping={isBumping} />
+      <MobileOrderBar orderCount={orderCount} onOpenOrder={handleOpenOrder} isBumping={isBumping} />
       <OrderDrawer
         open={orderOpen}
         orderItems={orderItems}
